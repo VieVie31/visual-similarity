@@ -10,9 +10,6 @@ import torch.optim as optim
 from IPython.display import Image
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
-
-
 from tqdm.auto import tqdm, trange
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,17 +20,17 @@ from sklearn.decomposition import PCA
 data_dir = '/content/data'
 dataset = TTLDataset(data_dir, transform=  transforms.ToTensor())
 
-fig = plt.figure()
+batch_size =256
 
 train_size = int(0.75 * len(dataset))
 valid_size = len(dataset) - train_size
 train_dataset, valid_dataset = torch.utils.data.random_split(dataset, [train_size, valid_size])
 
-train_loader = DataLoader(train_dataset, batch_size=256,
-                        shuffle=True, num_workers=0)
+train_loader = DataLoader(train_dataset, batch_size=batch_size,
+                        shuffle=True)
 
-valid_loader = DataLoader(valid_dataset, batch_size=256,
-                        shuffle=True, num_workers=0)
+valid_loader = DataLoader(valid_dataset, batch_size=batch_size,
+                        shuffle=True)
 
 
 def sim_matrix(a, b, eps=1e-8):
@@ -48,11 +45,11 @@ def sim_matrix(a, b, eps=1e-8):
 
 features_left = []
 features_right = []
+rep = Representation()
 
 for i,batch in enumerate(train_loader):
     left = batch['left']
     right = batch['right']
-    rep = Representation()
     dleft, dright = rep(left,right)
     features_left.extend(dleft.detach().numpy())
     features_right.extend(dright.detach().numpy())

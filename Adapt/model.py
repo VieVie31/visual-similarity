@@ -6,7 +6,6 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from IPython.display import Image
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
@@ -16,7 +15,7 @@ from tqdm.auto import tqdm, trange
 import matplotlib.pyplot as plt
 import numpy as np
 
-net18 = models.resnet18(False)
+net18 = models.resnet18(True)
 resnet18 = nn.Sequential(
     net18.conv1,
     net18.bn1,
@@ -59,7 +58,7 @@ class Representation(nn.Module):
         features1 = self.resnet(x1)
         features2= self.resnet(x2)
         features1 = [F.normalize(v) for v in features1]
-        features1 = [F.normalize(v) for v in features2]
+        features2 = [F.normalize(v) for v in features2]
         return (torch.cat(features1,1),torch.cat(features2,1))
 
 
