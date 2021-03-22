@@ -15,7 +15,7 @@ from tqdm.auto import tqdm, trange
 import matplotlib.pyplot as plt
 import numpy as np
 
-net18 = models.resnet18(True)
+net18 = models.resnet18(pretrained=True)
 resnet18 = nn.Sequential(
     net18.conv1,
     net18.bn1,
