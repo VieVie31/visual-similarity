@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from sklearn.decomposition import PCA
 from collections.abc import Iterable
+from tqdm import tqdm
 
 
 class Processor(ABC):
@@ -42,6 +43,7 @@ class Processor(ABC):
         """
         This is where our post processing logic needs to be implemented.
         Once you registered an extracted feature, this is where to define what are you going to do with it.
+        This method will be called in featureExtractor after we passed each model.
         """
         raise NotImplementedError("Please implement this method")
 
@@ -70,23 +72,25 @@ class SaveProcessor(Processor):
         self.names = names
 
         # saving will be done step by step, each time we register a feature we will save it.
-        # the last one will be executed two times, but it's not that bad since we only overrite a file.
         self.execute()
 
     def execute(self):
-        save_path = (
-            self.save_path
-            / str(self.__class__.__name__)
-            / str(self.model_name)
-            / str(self.layer_name)
-        )
-        save_path.mkdir(parents=True, exist_ok=True)
+        if self.imgs is not None:
+            save_path = (
+                self.save_path
+                / str(self.__class__.__name__)
+                / str(self.model_name)
+                / str(self.layer_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
 
-        for img, name in zip(self.imgs, self.names):
-            # must use clone otherwise it'll save the whole batch tensor
-            # see: https://discuss.pytorch.org/t/saving-tensor-with-torch-save-uses-too-much-memory/46865/2
-            # and: https://pytorch.org/docs/stable/tensor_view.html
-            torch.save(img.clone(), save_path / (name + ".pt"))
+            for img, name in zip(self.imgs, self.names):
+                # must use clone otherwise it'll save the whole batch tensor
+                # see: https://discuss.pytorch.org/t/saving-tensor-with-torch-save-uses-too-much-memory/46865/2
+                # and: https://pytorch.org/docs/stable/tensor_view.html
+                torch.save(img.clone(), save_path / (name + ".pt"))
+
+        self.imgs = None
 
 
 class PCAProcessor(Processor):
@@ -101,9 +105,9 @@ class PCAProcessor(Processor):
 
         self.PCA = PCA(out_dim)
         self.out_dim = out_dim
-        self.all_features_dict = dict()
+        self.features_per_layer_dict = dict()
 
-        self.called_register = False
+        self.model_name_list = []  # will help to decide when to call execute()
 
     def register(
         self, model_name: str, layer_name: str, imgs_batch: torch.Tensor, names: str
@@ -116,29 +120,48 @@ class PCAProcessor(Processor):
         assert len(imgs_batch.size()) == 4
         assert imgs_batch.size()[0] == len(names)
 
-        self.model_name = model_name
+        can_do_pca = sum(d > 1 for d in imgs_batch.shape) <= 2
+        if not can_do_pca:
+            raise ValueError(
+                f"Found array with dim 4 (got a tensor of shape {imgs_batch.shape}). Estimator expected <= 2."
+            )
 
-        self.last_layer_name = layer_name
+        self.model_name = model_name
         self.layer_name = layer_name
 
+        if not layer_name in self.features_per_layer_dict:
+            self.features_per_layer_dict[layer_name] = dict()
+
         for img, name in zip(imgs_batch, names):
-            self.all_features_dict[name] = img.squeeze().numpy()
+            self.features_per_layer_dict[layer_name][name] = img.squeeze().numpy()
 
     def execute(self):
         """
         Fit the PCA with the saved features, and then save them in their corresponding path
         """
+        if bool(self.features_per_layer_dict):
+            t = tqdm(self.features_per_layer_dict)
 
-        pca = self.PCA.fit(list(self.all_features_dict.values()))
-        reduced_features = pca.transform(list(self.all_features_dict.values()))
+            for layer in t:
+                t.set_description(f"PCA Fitting for {self.model_name} layer: {layer}")
 
-        save_path = (
-            self.save_path
-            / str(self.__class__.__name__)
-            / str(self.model_name)
-            / str(self.layer_name)
-        )
-        save_path.mkdir(parents=True, exist_ok=True)
+                X = torch.as_tensor(list(self.features_per_layer_dict[layer].values()))
 
-        for name, feature in zip(self.all_features_dict.keys(), reduced_features):
-            torch.save(torch.from_numpy(feature), save_path / (name + ".pt"))
+                self.PCA.fit(X)
+                reduced_features = self.PCA.transform(X)
+
+                save_path = (
+                    self.save_path
+                    / str(self.__class__.__name__)
+                    / str(self.model_name)
+                    / str(self.layer_name)
+                )
+                save_path.mkdir(parents=True, exist_ok=True)
+
+                names = self.features_per_layer_dict[layer].keys()
+                for name, feature in zip(names, reduced_features):
+                    torch.save(torch.from_numpy(feature), save_path / (name + ".pt"))
+
+            # reset and free the memory
+            del self.features_per_layer_dict
+            self.features_per_layer_dict = dict()

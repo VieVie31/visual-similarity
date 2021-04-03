@@ -73,18 +73,8 @@ def main():
         args.batch_size,
     )
 
-    processor.execute()  # do what he's supposed to do with the extracted features
-
 
 if __name__ == "__main__":
     # example:
     # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -b 10 -p save
     main()
-
-    # import torch
-
-    # print(
-    #     torch.load(
-    #         "C:\\Users\\Amine\\Desktop\\saved_features\\left\\resnet18\\layer4.1.bn2\\00001.jpg.pt"
-    #     ).shape
-    # )

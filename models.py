@@ -15,7 +15,7 @@ models_dict = dict()
 
 models_dict["resnet18"] = {
     "model": torchvision.models.resnet18(pretrained=True).eval(),
-    "layers": [-2, -3],
+    "layers": [-2],
 }
 
 models_dict["resnet34"] = {

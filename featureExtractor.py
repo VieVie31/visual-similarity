@@ -147,7 +147,7 @@ class FeatureExtractor:
             # re-move the model from gpu if it was available to cpu
             model.to(torch.device("cpu"))
 
-            # self.processor.execute()
+            self.processor.execute()
 
     @torch.no_grad()
     def __get_activation(self, model_name: str, layer_name: str, processor: Processor):
