@@ -1,10 +1,32 @@
 import os
 import argparse
-import torchvision.transforms as transforms
+from pre_processing import pre_processing_transforms
 from featureExtractor import FeatureExtractor
 from models import models_dict
 from dataset import TTLDataset
 from processor import SaveProcessor, PCAProcessor
+
+
+class ValidateProcessor(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        processor = values[0].lower()
+
+        if processor not in ("save", "pca"):
+            raise ValueError(f"invalid processor {values[0]}")
+
+        if processor == "pca":
+            if len(values) > 2:
+                raise ValueError(
+                    f"Too much arguments ! pca must be followed only by 1 number (out dim)"
+                )
+            elif len(values) < 2:
+                raise ValueError(f"Need out dim for the pca !")
+
+            processor = PCAProcessor(namespace.save_to, int(values[1]))
+        else:
+            processor = SaveProcessor(namespace.save_to)
+
+        setattr(namespace, self.dest, processor)
 
 
 parser = argparse.ArgumentParser(description="Feature maps extractor")
@@ -21,54 +43,48 @@ parser.add_argument(
     help="Path to which we are going to save the calculated features",
 )
 parser.add_argument(
+    "-b",
+    "--batch-size",
+    type=int,
+    metavar="N",
+    default=1,
+    help="Batch size",
+)
+parser.add_argument(
     "-p",
     "--processor",
-    required=True,
-    type=str,
+    nargs="*",
+    action=ValidateProcessor,
     default="save",
     help="Which processor to use, save or pca ?  (default: save)",
 )
-parser.add_argument(
-    "-l",
-    "--layers",
-    type=int,
-    nargs="+",
-    metavar="N",
-    default=[-2],
-    help="layers_indices:  Which layers we are going to use to extract the features. (default: -2)",
-)
+
+# layers indices are now specified in models_dict
 
 
 def main():
     args = parser.parse_args()
+    processor = args.processor
 
-    processor = None  # TODO: figure out a way to dynamically choose which Processor with Identity()
-
-    if args.processor == "pca":
-        processor = PCAProcessor(args.save_to, 256)
-    else:
-        if args.processor != "save":
-            print("Unsupported processor, will use SaveProcessor !")
-
-        processor = SaveProcessor(args.save_to)
-
-    extractor = FeatureExtractor(processor, models_dict, args.layers)
-
-    _, dirs, _ = next(os.walk(args.data))
-
-    if len(dirs) == 0:
-        extractor.extract_features_from_directory(args.data)
-    else:
-        print(
-            "The path you gave contains subdirectories, will assume it's a TTL like dataset."
-        )
-        ttl = TTLDataset(args.data, transform=transforms.ToTensor())
-        extractor.extract_features_ttl_dataset(ttl)
+    extractor = FeatureExtractor(processor, models_dict)
+    extractor.extract_features_from_directory(
+        args.data,
+        pre_processing_transforms,
+        args.batch_size,
+    )
 
     processor.execute()  # do what he's supposed to do with the extracted features
 
 
 if __name__ == "__main__":
     # example:
-    # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -p pca -l -2 -3
+    # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -b 10 -p save
     main()
+
+    # import torch
+
+    # print(
+    #     torch.load(
+    #         "C:\\Users\\Amine\\Desktop\\saved_features\\left\\resnet18\\layer4.1.bn2\\00001.jpg.pt"
+    #     ).shape
+    # )
