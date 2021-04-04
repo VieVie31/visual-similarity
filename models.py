@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torchvision.models
 
 """
@@ -9,19 +10,33 @@ import torchvision.models
         layers: List[int] ( the layers indices of which we want to extract the output of this model )
 """
 
+
+def get_layer_index(model: nn.Module, layer_name: str):
+    assert isinstance(model, nn.Module)
+    assert isinstance(layer_name, str)
+    assert hasattr(model, layer_name)
+
+    return list(model.modules()).index(getattr(model, layer_name))
+
+
 models_dict = dict()
 
 # SUPERVISED
-
+resnet18 = torchvision.models.resnet18(pretrained=True).eval()
 models_dict["resnet18"] = {
-    "model": torchvision.models.resnet18(pretrained=True).eval(),
-    "layers": [-2],
+    "model": resnet18,
+    "layers": [
+        get_layer_index(resnet18, "layer1"),
+        get_layer_index(resnet18, "layer2"),
+        get_layer_index(resnet18, "layer3"),
+        get_layer_index(resnet18, "layer4"),
+    ],
 }
 
-models_dict["resnet34"] = {
-    "model": torchvision.models.resnet34(pretrained=True).eval(),
-    "layers": [-2],
-}
+# models_dict["resnet34"] = {
+#     "model": torchvision.models.resnet34(pretrained=True).eval(),
+#     "layers": [-2],
+# }
 
 # models_dict["resnet50"] = {
 #     "model": torchvision.models.resnet50(pretrained=True).eval(),

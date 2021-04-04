@@ -1,5 +1,7 @@
 """ This is where we define our post processing function that will be used after the features extraction part"""
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
 from abc import ABC, abstractmethod
 from pathlib import Path
 from sklearn.decomposition import PCA
@@ -24,7 +26,11 @@ class Processor(ABC):
 
     @abstractmethod
     def register(
-        self, model_name: str, layer_name: str, imgs_batch: torch.Tensor, names: str
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
     ):
         """
         Figuring out when to call execute will depend on what operations are done by the processor.
@@ -107,10 +113,12 @@ class PCAProcessor(Processor):
         self.out_dim = out_dim
         self.features_per_layer_dict = dict()
 
-        self.model_name_list = []  # will help to decide when to call execute()
-
     def register(
-        self, model_name: str, layer_name: str, imgs_batch: torch.Tensor, names: str
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
     ):
         """
         Register the feature into the dictionnary after squeezing it and cast it to numpy array
@@ -122,6 +130,7 @@ class PCAProcessor(Processor):
 
         can_do_pca = sum(d > 1 for d in imgs_batch.shape) <= 2
         if not can_do_pca:
+            # maybe we can add AdaptiveAvgPool2d((1,1)) in the future ?
             raise ValueError(
                 f"Found array with dim 4 (got a tensor of shape {imgs_batch.shape}). Estimator expected <= 2."
             )
@@ -165,3 +174,115 @@ class PCAProcessor(Processor):
             # reset and free the memory
             del self.features_per_layer_dict
             self.features_per_layer_dict = dict()
+
+
+class AdaptationProcessor(Processor):
+    """
+    This is our processor that will be used in practice. Here is what it does:
+        - Extract outputs from several layers
+        - Apply AvgPooling to these output to flatten them
+        - Concatenate them
+        - Apply PCA to reduce dimension
+        - Serialize the results
+    """
+
+    def __init__(self, save_path: str, out_dim: int):
+        assert int(out_dim) > 0
+        super().__init__(save_path)
+
+        self.PCA = PCA(out_dim)
+        self.out_dim = out_dim
+
+        self.avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.names = []
+        self.merged_features = []
+        self.features_per_layer_dict = dict()
+        self.save_path_names = set()
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_output: torch.Tensor,
+        names: Iterable,
+    ):
+        """
+        Save the batch in a dictionnary (keys are layers).
+        Check if the layer_name is already in the dict, if it is:
+            - start merging features
+            - save those merged features in another dictionnary
+            - reset the dictionnary.
+        """
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert len(layer_output.size()) == 4
+        assert layer_output.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.save_path_names.add(self.save_path.name)
+
+        if layer_name in self.features_per_layer_dict:  # means we got another batch
+            self.calculate_merged_features_and_reset_dict()
+
+            # next batch, we're going to have the same layer name, so we need to reset and add it.
+            self.features_per_layer_dict[layer_name] = layer_output
+        else:
+            self.features_per_layer_dict[layer_name] = layer_output
+            # when we finally decide to deal with the batch, by then we lost the associated labels
+            # hence the use of this var
+            self.last_names = [self.save_path.name + "_" + name for name in names]
+
+    def execute(self):
+        """
+        Fit PCA to the merged features and serialize.
+        """
+        # get the last ones
+        self.calculate_merged_features_and_reset_dict()
+
+        if len(self.merged_features) > 0:
+            # PCA fitting
+            print("PCA fitting in progress...")
+            X = torch.stack([x for x in self.merged_features])
+            self.PCA.fit(X)
+            reduced_features = self.PCA.transform(X)
+
+            # serialize and save
+            for name, feature in zip(self.names, reduced_features):
+                if len(self.save_path_names) > 1:
+                    save_path = (
+                        self.save_path
+                        / str(name.split("_")[0])
+                        / str(self.__class__.__name__)
+                        / str(self.model_name)
+                    )
+                else:
+                    save_path = (
+                        self.save_path
+                        / str(self.__class__.__name__)
+                        / str(self.model_name)
+                    )
+
+                save_path.mkdir(parents=True, exist_ok=True)
+                torch.save(
+                    torch.from_numpy(feature), save_path / (name.split("_")[-1] + ".pt")
+                )
+
+    def calculate_merged_features_and_reset_dict(self):
+        # merge the features
+        l = self.features_per_layer_dict.values()  # get all those tensors
+        l = [
+            F.normalize(self.avg(x).squeeze()) for x in l
+        ]  # avg_pool, squeeze and then normalize
+        # won't work if len(dataset) % batch_size == 1
+
+        l = torch.cat(l, 1)  # concatenate them
+
+        # save merged features
+        for i in range(len(l)):
+            self.merged_features.append(l[i])
+            self.names.append(self.last_names[i])
+
+        # reset the dict
+        del self.features_per_layer_dict
+        self.features_per_layer_dict = dict()

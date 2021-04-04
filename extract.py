@@ -4,17 +4,17 @@ from pre_processing import pre_processing_transforms
 from featureExtractor import FeatureExtractor
 from models import models_dict
 from dataset import TTLDataset
-from processor import SaveProcessor, PCAProcessor
+from processor import SaveProcessor, PCAProcessor, AdaptationProcessor
 
 
 class ValidateProcessor(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         processor = values[0].lower()
 
-        if processor not in ("save", "pca"):
+        if processor not in ("save", "pca", "adapt"):
             raise ValueError(f"invalid processor {values[0]}")
 
-        if processor == "pca":
+        if processor == "pca" or processor == "adapt":
             if len(values) > 2:
                 raise ValueError(
                     f"Too much arguments ! pca must be followed only by 1 number (out dim)"
@@ -22,7 +22,10 @@ class ValidateProcessor(argparse.Action):
             elif len(values) < 2:
                 raise ValueError(f"Need out dim for the pca !")
 
-            processor = PCAProcessor(namespace.save_to, int(values[1]))
+            if processor == "pca":
+                processor = PCAProcessor(namespace.save_to, int(values[1]))
+            else:
+                processor = AdaptationProcessor(namespace.save_to, int(values[1]))
         else:
             processor = SaveProcessor(namespace.save_to)
 

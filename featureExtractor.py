@@ -76,6 +76,7 @@ class FeatureExtractor:
 
         _, dirs, _ = next(os.walk(path))
         loader = None
+        dataset = None
 
         if len(dirs) == 0:
             dataset = SimpleDataset(path, transform=transforms)
@@ -84,8 +85,19 @@ class FeatureExtractor:
             print(
                 "The path you gave contains subdirectories, will assume it's a TTL like dataset."
             )
-            ttl = TTLDataset(path, transform=transforms)
-            loader = DataLoader(ttl, batch_size=batch_size)
+            dataset = TTLDataset(path, transform=transforms)
+            loader = DataLoader(dataset, batch_size=batch_size)
+
+        # check before extracting features
+        if self.processor.__class__.__name__ == "AdaptationProcessor":
+            if len(dataset) % loader.batch_size == 1:
+                raise ValueError(
+                    f"[len(dataset): {len(dataset)} % Batch size: {loader.batch_size} = 1].\n"
+                    "This batch size is inapproriate for this processor. "
+                    "It wi'll fail when trying to normalize the batch that contains only one tensor !"
+                )
+
+        # TODO: add checking for all processors that use PCA before extracting the features
 
         self._extract_features(loader)
 
@@ -116,27 +128,28 @@ class FeatureExtractor:
 
             if is_ttl:
                 # special case here since we have pairs, and we need to change the save_path each time.
-                original_save_path = self.save_path
+                self.original_save_path = self.save_path
 
-                for i, data in tqdm(
-                    enumerate(loader, 0), desc="Current batch -> ", leave=False
-                ):
-                    imgs, self.corresponding_labels = data
+                with tqdm(total=len(loader), desc="Batch loop") as progress_bar:
+                    for i, data in enumerate(loader, 0):
+                        imgs, self.corresponding_labels = data
 
-                    # move the imgs to gpu if it's available
-                    imgs["left"].to(device)
-                    imgs["right"].to(device)
+                        # move the imgs to gpu if it's available
+                        imgs["left"].to(device)
+                        imgs["right"].to(device)
 
-                    # go
-                    self.save_path = original_save_path / "left"
-                    self.processor.set_path(self.save_path)
-                    model(imgs["left"])
+                        # go
+                        self.save_path = self.original_save_path / "left"
+                        self.processor.set_path(self.save_path)
+                        model(imgs["left"])
 
-                    self.save_path = original_save_path / "right"
-                    self.processor.set_path(self.save_path)
-                    model(imgs["right"])
+                        self.save_path = self.original_save_path / "right"
+                        self.processor.set_path(self.save_path)
+                        model(imgs["right"])
 
-                self.save_path = original_save_path
+                        progress_bar.update(1)
+
+                self.save_path = self.original_save_path
 
             else:
                 for i, data in tqdm(enumerate(loader, 0)):
@@ -147,6 +160,7 @@ class FeatureExtractor:
             # re-move the model from gpu if it was available to cpu
             model.to(torch.device("cpu"))
 
+            self.processor.set_path(self.original_save_path)
             self.processor.execute()
 
     @torch.no_grad()
@@ -163,7 +177,6 @@ class FeatureExtractor:
             """
             Hook function, this is where we are placing our processor to handle the extracted features
             """
-
             processor.register(
                 model_name, layer_name, output.detach(), self.corresponding_labels
             )
