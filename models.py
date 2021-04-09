@@ -157,6 +157,14 @@ models_dict["resnet18"] = {
 # }
 
 
+# Vision Transformer
+# all versions are available here: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
+# models_dict["ViT"] = {
+#     "model": timm.create_model('vit_base_patch16_224', pretrained=True).eval(),
+#     "layers": [-2],
+# }
+
+
 # SEMI-SUPERVISED
 
 # facebook semi-supervised models: https://github.com/facebookresearch/semi-supervised-ImageNet1K-models
