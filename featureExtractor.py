@@ -120,7 +120,7 @@ class FeatureExtractor:
 
         for model in tqdm(self.models, desc="Models loop -> "):
             # load model to gpu if it's available for faster computations
-            model.to(device)
+            model = model.to(device)
 
             # pass the imgs into the model so we can capture the intermediate layers outputs.
             # self.corresponding_labels will be used in get_activation method below
@@ -135,8 +135,10 @@ class FeatureExtractor:
                         imgs, self.corresponding_labels = data
 
                         # move the imgs to gpu if it's available
-                        imgs["left"].to(device)
-                        imgs["right"].to(device)
+                        imgs["left"], imgs["right"] = (
+                            imgs["left"].to(device),
+                            imgs["right"].to(device),
+                        )
 
                         # go
                         self.save_path = self.original_save_path / "left"
@@ -158,7 +160,7 @@ class FeatureExtractor:
                     model(imgs)
 
             # re-move the model from gpu if it was available to cpu
-            model.to(torch.device("cpu"))
+            model = model.to(torch.device("cpu"))
 
             self.processor.set_path(self.original_save_path)
             self.processor.execute()
