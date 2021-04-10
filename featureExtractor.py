@@ -131,29 +131,28 @@ class FeatureExtractor:
             # pass the imgs into the model so we can capture the intermediate layers outputs.
             # self.corresponding_labels will be used in get_activation method below
             # to know the label for each img in the batch
+            
+            # we are going to need the original path in case we have a TTL dataset
+            self.original_save_path = self.save_path
 
             if is_ttl:
-                # special case here since we have pairs, and we need to change the save_path each time.
-                self.original_save_path = self.save_path
-
                 with tqdm(total=len(loader), desc="Batch loop") as progress_bar:
                     for i, data in enumerate(loader, 0):
                         imgs, self.corresponding_labels = data
-
-                        # move the imgs to gpu if it's available
-                        imgs["left"], imgs["right"] = (
-                            imgs["left"].to(device),
-                            imgs["right"].to(device),
-                        )
-
-                        # go
+                        
+                        # move the left imgs to gpu if available, treat them, and then delete them 
+                        imgs["left"] = imgs["left"].to(device)
                         self.save_path = self.original_save_path / "left"
                         self.processor.set_path(self.save_path)
                         model(imgs["left"])
+                        del imgs["left"]
 
+                        # right imgs turn...
+                        imgs["right"] = imgs["right"].to(device)
                         self.save_path = self.original_save_path / "right"
                         self.processor.set_path(self.save_path)
                         model(imgs["right"])
+                        del imgs["right"]
 
                         progress_bar.update(1)
 
@@ -164,6 +163,7 @@ class FeatureExtractor:
                     imgs, self.corresponding_labels = data
                     imgs.to(device)  # move the imgs to gpu if it's available
                     model(imgs)
+                    del imgs
 
             # We are done with this model, let's free the memory
             del model

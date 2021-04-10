@@ -224,14 +224,13 @@ class AdaptationProcessor(Processor):
 
         if layer_name in self.features_per_layer_dict:  # means we got another batch
             self.calculate_merged_features_and_reset_dict()
-
-            # next batch, we're going to have the same layer name, so we need to reset and add it.
-            self.features_per_layer_dict[layer_name] = layer_output
         else:
-            self.features_per_layer_dict[layer_name] = layer_output
             # when we finally decide to deal with the batch, by then we lost the associated labels
             # hence the use of this var
             self.last_names = [self.save_path.name + "_" + name for name in names]
+        
+        # we are doing PCA with CPU anyhow, so let's move this tensor to cpu to save GPU memory
+        self.features_per_layer_dict[layer_name] = layer_output.cpu()
 
     def execute(self):
         """
