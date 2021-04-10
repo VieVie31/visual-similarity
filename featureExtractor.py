@@ -73,13 +73,13 @@ class FeatureExtractor:
 
         if len(dirs) == 0:
             dataset = SimpleDataset(path, transform=transforms)
-            loader = DataLoader(dataset, batch_size=batch_size)
         else:
             print(
                 "The path you gave contains subdirectories, will assume it's a TTL like dataset."
             )
             dataset = TTLDataset(path, transform=transforms)
-            loader = DataLoader(dataset, batch_size=batch_size)
+            
+        loader = DataLoader(dataset, batch_size=batch_size)
 
         # check before extracting features
         if self.processor.__class__.__name__ == "AdaptationProcessor":

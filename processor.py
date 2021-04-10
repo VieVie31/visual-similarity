@@ -243,10 +243,13 @@ class AdaptationProcessor(Processor):
         if len(self.merged_features) > 0:
             # PCA fitting
             print("PCA fitting in progress...")
-            X = torch.stack([x for x in self.merged_features])
+
+            # moving tensor to cpu before doing PCA fitting (sklearn doesn't support GPU yet)
+            X = torch.stack([x for x in self.merged_features]).cpu()
             self.PCA.fit(X)
             reduced_features = self.PCA.transform(X)
 
+            print("Saving...")
             # serialize and save
             for name, feature in zip(self.names, reduced_features):
                 if len(self.save_path_names) > 1:
@@ -267,6 +270,15 @@ class AdaptationProcessor(Processor):
                 torch.save(
                     torch.from_numpy(feature), save_path / (name.split("_")[-1] + ".pt")
                 )
+
+            # crucial line here if we are iterating over multiple models
+            del self.merged_features
+            self.merged_features = []
+
+            # here to just free up some space in memory
+            del X, reduced_features
+
+            print("done")
 
     def calculate_merged_features_and_reset_dict(self):
         # merge the features
