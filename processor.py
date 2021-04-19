@@ -2,11 +2,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 from abc import ABC, abstractmethod
 from pathlib import Path
 from sklearn.decomposition import PCA
 from collections.abc import Iterable
 from tqdm import tqdm
+from joblib import dump
 
 
 class Processor(ABC):
@@ -228,9 +230,8 @@ class AdaptationProcessor(Processor):
             # when we finally decide to deal with the batch, by then we lost the associated labels
             # hence the use of this var
             self.last_names = [self.save_path.name + "_" + name for name in names]
-        
-        # we are doing PCA with CPU anyhow, so let's move this tensor to cpu to save GPU memory
-        self.features_per_layer_dict[layer_name] = layer_output.cpu()
+
+        self.features_per_layer_dict[layer_name] = layer_output
 
     def execute(self):
         """
@@ -250,25 +251,33 @@ class AdaptationProcessor(Processor):
 
             print("Saving...")
             # serialize and save
-            for name, feature in zip(self.names, reduced_features):
-                if len(self.save_path_names) > 1:
-                    save_path = (
-                        self.save_path
-                        / str(name.split("_")[0])
-                        / str(self.__class__.__name__)
-                        / str(self.model_name)
-                    )
-                else:
-                    save_path = (
-                        self.save_path
-                        / str(self.__class__.__name__)
-                        / str(self.model_name)
-                    )
+            save_path = (
+                self.save_path / str(self.__class__.__name__) / str(self.model_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
 
-                save_path.mkdir(parents=True, exist_ok=True)
-                torch.save(
-                    torch.from_numpy(feature), save_path / (name.split("_")[-1] + ".pt")
+            d = dict()
+            names = [name.split("_")[-1] for name in self.names]
+
+            if len(self.save_path_names) > 1:
+                l = len(self.names)
+                d["left"] = dict(
+                    zip(
+                        names[: l // 2],
+                        reduced_features[: l // 2],
+                    )
                 )
+                d["right"] = dict(
+                    zip(
+                        names[l // 2 :],
+                        reduced_features[l // 2 :],
+                    )
+                )
+            else:
+                d = dict(zip(names, reduced_features))
+
+            np.save(save_path / "out.npy", d)
+            dump(self.PCA, save_path / "pca.joblib")
 
             # crucial line here if we are iterating over multiple models
             del self.merged_features

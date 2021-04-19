@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import numpy as np
 import torch
@@ -6,6 +7,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 
 from torch.utils.data import Dataset, DataLoader
+from torch.utils.hooks import RemovableHandle
 from pathlib import Path
 from typing import List, Tuple, Dict
 from types import FunctionType
@@ -46,6 +48,7 @@ class FeatureExtractor:
         self.save_path = self.processor.save_path
         self.models_dict = models_dict
         self.models_names = list(models_dict.keys())
+        self.hooks_dict = dict()
 
     @torch.no_grad()
     def extract_features_from_directory(
@@ -92,6 +95,7 @@ class FeatureExtractor:
 
         # TODO: add checking for all processors that use PCA before extracting the features
 
+        self.dataset_path = path
         self._extract_features(loader)
 
     @torch.no_grad()
@@ -112,15 +116,20 @@ class FeatureExtractor:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"Extracting features with {len(self.models_names)} models !")
+        
+        checkpoint = self.restore_checkpoint()
+        if checkpoint:
+            print(f"Found checkpoint ! Will continue from {checkpoint[0]}")
 
-        t = tqdm(self.models_names)
+        t = tqdm(checkpoint if checkpoint else self.models_names)
+
         for model in t:
             model_name = model
             t.set_description(f"Models Loop: Loading {model_name} model...")
             t.refresh()
             
             # load model to gpu if it's available for faster computations
-            model = self.__construct_model(model)
+            model = self.__build_model(model)
             model = model.to(device)
 
             t.set_description(
@@ -134,6 +143,14 @@ class FeatureExtractor:
             
             # we are going to need the original path in case we have a TTL dataset
             self.original_save_path = self.save_path
+
+            # now after the model is loaded, we'll test if we can use the provided batch size
+            # we'll devide it by 2 until it fits the memory
+            loader = self.__adapt_batch_size(model, loader, device)
+            
+            # we have determined a good batch size, let's register our hooks
+            self.__register_hooks(model, model_name)
+            
 
             if is_ttl:
                 with tqdm(total=len(loader), desc="Batch loop") as progress_bar:
@@ -170,15 +187,40 @@ class FeatureExtractor:
 
             self.processor.set_path(self.original_save_path)
             self.processor.execute()
+            
+            if hasattr(self, 'dataset_path'):
+                self.save_checkpoint(self.dataset_path, model_name)
 
-    def __construct_model(self, model_name: str):
+    def __adapt_batch_size(self, model : nn.Module, loader : DataLoader, device) -> DataLoader:
+
+        is_ttl = isinstance(loader.dataset, TTLDataset)
+        good_batch_size = False
+        batch_size = loader.batch_size
+        new_loader = DataLoader(loader.dataset, batch_size=loader.batch_size)
+
+        while not good_batch_size:
+            try:
+                imgs, labels = next(iter(new_loader))
+                imgs = imgs['left'].to(device) if is_ttl else imgs.to(device)
+                model(imgs)
+
+                return new_loader
+            except RuntimeError as e:
+                if 'out of memory' in str(e):
+                    batch_size //= 2
+                    print(f'\n[+] WARNING: ran out of memory, retrying with batch size = {batch_size}')
+                    torch.cuda.empty_cache()
+                    
+                    new_loader = DataLoader(loader.dataset, batch_size=batch_size)
+                else:
+                    raise e
+
+    def __build_model(self, model_name: str):
         """
-        This method serves as constructor for the model and will register the forward hook accordingly.
+        This method serves as constructor for the model.
         What it does is:
             Get the lambda expression in self.models_dict[model_name].
             Construct the pytorch model.
-            register the forward hook.
-
             return the model
         """
         assert model_name in self.models_names
@@ -186,6 +228,20 @@ class FeatureExtractor:
         m_dict = self.models_dict[model_name]
         # constructing the model
         model = m_dict["model"].__call__()
+
+        return model
+
+    def __register_hooks(self, model : nn.Module, model_name : str) -> List[RemovableHandle]:
+        """
+            This method will register the forward hooks on all the specified modules (layers)
+            and will return all the removable handles.
+            We'll make use of these handles to test the batch size.
+        """
+        assert isinstance(model, nn.Module)
+        assert isinstance(model_name, str)
+
+        handles = []
+        m_dict = self.models_dict[model_name]
 
         # constructing the layer indices
         layers_indices = [
@@ -195,11 +251,11 @@ class FeatureExtractor:
 
         for layer_index in layers_indices:
             layer_name, module = list(model.named_modules())[layer_index]
-            module.register_forward_hook(
+            handles.append(module.register_forward_hook(
                 self.__get_activation(model_name, layer_name, self.processor)
-            )
+            ))
 
-        return model
+        return handles
 
     @torch.no_grad()
     def __get_activation(self, model_name: str, layer_name: str, processor: Processor):
@@ -215,8 +271,38 @@ class FeatureExtractor:
             """
             Hook function, this is where we are placing our processor to handle the extracted features
             """
+            # Processing is done on CPU, so let's move this tensor to cpu to save GPU memory
             processor.register(
-                model_name, layer_name, output.detach(), self.corresponding_labels
+                model_name, layer_name, output.detach().cpu(), self.corresponding_labels
             )
 
         return hook
+
+    def load_checkpoint(self, path : str):
+        with open(path, 'rb') as f:
+            return pickle.load(f)
+
+    def restore_checkpoint(self, path = 'name.ckpt'):
+        try:
+            d = self.load_checkpoint(path)
+            p = os.path.abspath(self.dataset_path)
+            if p in d:
+                return d[p]
+
+            return None
+        except FileNotFoundError:
+            return None
+
+    def save_checkpoint(self, dataset_path : str, model_name : str, save_to = 'name.ckpt'):
+        d = None
+        try:
+            d = self.load_checkpoint(save_to)
+        except FileNotFoundError:
+            pass
+
+        d = d if d else dict()
+
+        d[os.path.abspath(dataset_path)] = self.models_names[self.models_names.index(model_name)+1:]
+
+        with open(save_to, 'wb') as f:
+            pickle.dump(d, f)
