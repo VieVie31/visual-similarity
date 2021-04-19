@@ -81,7 +81,7 @@ class FeatureExtractor:
                 "The path you gave contains subdirectories, will assume it's a TTL like dataset."
             )
             dataset = TTLDataset(path, transform=transforms)
-            
+
         loader = DataLoader(dataset, batch_size=batch_size)
 
         # check before extracting features
@@ -116,18 +116,27 @@ class FeatureExtractor:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"Extracting features with {len(self.models_names)} models !")
-        
+
         checkpoint = self.restore_checkpoint()
         if checkpoint:
-            print(f"Found checkpoint ! Will continue from {checkpoint[0]}")
+            print(
+                f"Found checkpoint ! Do you want to  continue from {checkpoint[0]} ",
+                end="",
+            )
 
-        t = tqdm(checkpoint if checkpoint else self.models_names)
+            restore = input("(y/n) ?")
+            while restore.lower() not in ["y", "n"]:
+                restore = input("Please type y or n: ")
+
+            restore = True if restore == "y" else False
+
+        t = tqdm(checkpoint if checkpoint and restore else self.models_names)
 
         for model in t:
             model_name = model
             t.set_description(f"Models Loop: Loading {model_name} model...")
             t.refresh()
-            
+
             # load model to gpu if it's available for faster computations
             model = self.__build_model(model)
             model = model.to(device)
@@ -140,24 +149,23 @@ class FeatureExtractor:
             # pass the imgs into the model so we can capture the intermediate layers outputs.
             # self.corresponding_labels will be used in get_activation method below
             # to know the label for each img in the batch
-            
+
             # we are going to need the original path in case we have a TTL dataset
             self.original_save_path = self.save_path
 
             # now after the model is loaded, we'll test if we can use the provided batch size
             # we'll devide it by 2 until it fits the memory
             loader = self.__adapt_batch_size(model, loader, device)
-            
+
             # we have determined a good batch size, let's register our hooks
             self.__register_hooks(model, model_name)
-            
 
             if is_ttl:
                 with tqdm(total=len(loader), desc="Batch loop") as progress_bar:
                     for i, data in enumerate(loader, 0):
                         imgs, self.corresponding_labels = data
-                        
-                        # move the left imgs to gpu if available, treat them, and then delete them 
+
+                        # move the left imgs to gpu if available, treat them, and then delete them
                         imgs["left"] = imgs["left"].to(device)
                         self.save_path = self.original_save_path / "left"
                         self.processor.set_path(self.save_path)
@@ -187,11 +195,13 @@ class FeatureExtractor:
 
             self.processor.set_path(self.original_save_path)
             self.processor.execute()
-            
-            if hasattr(self, 'dataset_path'):
+
+            if hasattr(self, "dataset_path"):
                 self.save_checkpoint(self.dataset_path, model_name)
 
-    def __adapt_batch_size(self, model : nn.Module, loader : DataLoader, device) -> DataLoader:
+    def __adapt_batch_size(
+        self, model: nn.Module, loader: DataLoader, device
+    ) -> DataLoader:
 
         is_ttl = isinstance(loader.dataset, TTLDataset)
         good_batch_size = False
@@ -201,16 +211,18 @@ class FeatureExtractor:
         while not good_batch_size:
             try:
                 imgs, labels = next(iter(new_loader))
-                imgs = imgs['left'].to(device) if is_ttl else imgs.to(device)
+                imgs = imgs["left"].to(device) if is_ttl else imgs.to(device)
                 model(imgs)
 
                 return new_loader
             except RuntimeError as e:
-                if 'out of memory' in str(e):
+                if "out of memory" in str(e):
                     batch_size //= 2
-                    print(f'\n[+] WARNING: ran out of memory, retrying with batch size = {batch_size}')
+                    print(
+                        f"\n[+] WARNING: ran out of memory, retrying with batch size = {batch_size}"
+                    )
                     torch.cuda.empty_cache()
-                    
+
                     new_loader = DataLoader(loader.dataset, batch_size=batch_size)
                 else:
                     raise e
@@ -231,11 +243,13 @@ class FeatureExtractor:
 
         return model
 
-    def __register_hooks(self, model : nn.Module, model_name : str) -> List[RemovableHandle]:
+    def __register_hooks(
+        self, model: nn.Module, model_name: str
+    ) -> List[RemovableHandle]:
         """
-            This method will register the forward hooks on all the specified modules (layers)
-            and will return all the removable handles.
-            We'll make use of these handles to test the batch size.
+        This method will register the forward hooks on all the specified modules (layers)
+        and will return all the removable handles.
+        We'll make use of these handles to test the batch size.
         """
         assert isinstance(model, nn.Module)
         assert isinstance(model_name, str)
@@ -251,9 +265,11 @@ class FeatureExtractor:
 
         for layer_index in layers_indices:
             layer_name, module = list(model.named_modules())[layer_index]
-            handles.append(module.register_forward_hook(
-                self.__get_activation(model_name, layer_name, self.processor)
-            ))
+            handles.append(
+                module.register_forward_hook(
+                    self.__get_activation(model_name, layer_name, self.processor)
+                )
+            )
 
         return handles
 
@@ -278,11 +294,11 @@ class FeatureExtractor:
 
         return hook
 
-    def load_checkpoint(self, path : str):
-        with open(path, 'rb') as f:
+    def load_checkpoint(self, path: str):
+        with open(path, "rb") as f:
             return pickle.load(f)
 
-    def restore_checkpoint(self, path = 'name.ckpt'):
+    def restore_checkpoint(self, path="name.ckpt"):
         try:
             d = self.load_checkpoint(path)
             p = os.path.abspath(self.dataset_path)
@@ -293,7 +309,7 @@ class FeatureExtractor:
         except FileNotFoundError:
             return None
 
-    def save_checkpoint(self, dataset_path : str, model_name : str, save_to = 'name.ckpt'):
+    def save_checkpoint(self, dataset_path: str, model_name: str, save_to="name.ckpt"):
         d = None
         try:
             d = self.load_checkpoint(save_to)
@@ -302,7 +318,9 @@ class FeatureExtractor:
 
         d = d if d else dict()
 
-        d[os.path.abspath(dataset_path)] = self.models_names[self.models_names.index(model_name)+1:]
+        d[os.path.abspath(dataset_path)] = self.models_names[
+            self.models_names.index(model_name) + 1 :
+        ]
 
-        with open(save_to, 'wb') as f:
+        with open(save_to, "wb") as f:
             pickle.dump(d, f)

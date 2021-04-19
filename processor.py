@@ -256,23 +256,17 @@ class AdaptationProcessor(Processor):
             )
             save_path.mkdir(parents=True, exist_ok=True)
 
-            d = dict()
-            names = [name.split("_")[-1] for name in self.names]
-
             if len(self.save_path_names) > 1:
-                l = len(self.names)
-                d["left"] = dict(
-                    zip(
-                        names[: l // 2],
-                        reduced_features[: l // 2],
-                    )
-                )
-                d["right"] = dict(
-                    zip(
-                        names[l // 2 :],
-                        reduced_features[l // 2 :],
-                    )
-                )
+                d = {"left": [], "right": [], "left_name": [], "right_name": []}
+                assert len(self.names) == len(reduced_features)
+
+                for i in range(len(self.names)):
+                    if "left" in self.names[i]:
+                        d["left"].append(reduced_features[i])
+                        d["left_name"].append(self.names[i].split("_")[-1])
+                    else:
+                        d["right"].append(reduced_features[i])
+                        d["right_name"].append(self.names[i].split("_")[-1])
             else:
                 d = dict(zip(names, reduced_features))
 
@@ -280,8 +274,9 @@ class AdaptationProcessor(Processor):
             dump(self.PCA, save_path / "pca.joblib")
 
             # crucial line here if we are iterating over multiple models
-            del self.merged_features
+            del self.merged_features, self.names
             self.merged_features = []
+            self.names = []
 
             # here to just free up some space in memory
             del X, reduced_features
