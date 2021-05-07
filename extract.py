@@ -79,5 +79,5 @@ def main():
 
 if __name__ == "__main__":
     # example:
-    # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -b 10 -p save
+    # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -b 64 -p adapt 256
     main()

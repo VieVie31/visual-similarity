@@ -192,14 +192,16 @@ class AdaptationProcessor(Processor):
         assert int(out_dim) > 0
         super().__init__(save_path)
 
-        self.PCA = PCA(out_dim)
+        self.PCA = PCA(out_dim, whiten=True)
         self.out_dim = out_dim
 
         self.avg = nn.AdaptiveAvgPool2d((1, 1))
         self.names = []
         self.merged_features = []
-        self.features_per_layer_dict = dict()
+        self.features_per_group_dict = dict()
         self.save_path_names = set()
+
+        self.last_group_name = ""
 
     def register(
         self,
@@ -223,15 +225,26 @@ class AdaptationProcessor(Processor):
         self.model_name = model_name
         self.layer_name = layer_name
         self.save_path_names.add(self.save_path.name)
+        group_name = self.save_path.name
 
-        if layer_name in self.features_per_layer_dict:  # means we got another batch
+        # a batch may consists of multiple groups (in case of ttl we have two: left & right)
+        # means we got a new batch
+        if (
+            group_name in self.features_per_group_dict
+            and layer_name in self.features_per_group_dict[group_name]
+        ):
             self.calculate_merged_features_and_reset_dict()
-        else:
-            # when we finally decide to deal with the batch, by then we lost the associated labels
-            # hence the use of this var
-            self.last_names = [self.save_path.name + "_" + name for name in names]
 
-        self.features_per_layer_dict[layer_name] = layer_output
+        if group_name not in self.features_per_group_dict:
+            self.features_per_group_dict[group_name] = dict()
+
+        if layer_name not in self.features_per_group_dict[group_name]:
+            self.features_per_group_dict[group_name][layer_name] = dict()
+
+        self.features_per_group_dict[group_name][layer_name] = layer_output
+        self.features_per_group_dict[group_name]["names"] = [
+            group_name + "_" + name for name in names
+        ]
 
     def execute(self):
         """
@@ -267,10 +280,12 @@ class AdaptationProcessor(Processor):
                     else:
                         d["right"].append(reduced_features[i])
                         d["right_name"].append(self.names[i].split("_")[-1])
-            else:
-                d = dict(zip(names, reduced_features))
 
-            np.save(save_path / "out.npy", d)
+                d["left"], d["right"] = np.asarray(d["left"]), np.asarray(d["right"])
+            else:
+                d = dict(zip(self.names, np.asarray(reduced_features)))
+
+            np.save(save_path / str(self.model_name), d)
             dump(self.PCA, save_path / "pca.joblib")
 
             # crucial line here if we are iterating over multiple models
@@ -284,20 +299,24 @@ class AdaptationProcessor(Processor):
             print("done")
 
     def calculate_merged_features_and_reset_dict(self):
-        # merge the features
-        l = self.features_per_layer_dict.values()  # get all those tensors
-        l = [
-            F.normalize(self.avg(x).squeeze()) for x in l
-        ]  # avg_pool, squeeze and then normalize
-        # won't work if len(dataset) % batch_size == 1
+        for group_name in self.features_per_group_dict:
+            l = [
+                features
+                for key, features in self.features_per_group_dict[group_name].items()
+                if key != "names"
+            ]
+            l = [
+                F.normalize(self.avg(x).squeeze()) for x in l
+            ]  # avg_pool, squeeze and then normalize
+            # won't work if len(dataset) % batch_size == 1
 
-        l = torch.cat(l, 1)  # concatenate them
+            l = torch.cat(l, 1)  # concatenate the
 
-        # save merged features
-        for i in range(len(l)):
-            self.merged_features.append(l[i])
-            self.names.append(self.last_names[i])
+            # save merged features
+            for i in range(len(l)):
+                self.merged_features.append(l[i])
+                self.names.append(self.features_per_group_dict[group_name]["names"][i])
 
         # reset the dict
-        del self.features_per_layer_dict
-        self.features_per_layer_dict = dict()
+        del self.features_per_group_dict
+        self.features_per_group_dict = dict()
