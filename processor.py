@@ -192,7 +192,7 @@ class AdaptationProcessor(Processor):
         assert int(out_dim) > 0
         super().__init__(save_path)
 
-        self.PCA = PCA(out_dim, whiten=True)
+        self.PCA = PCA(out_dim)
         self.out_dim = out_dim
 
         self.avg = nn.AdaptiveAvgPool2d((1, 1))
