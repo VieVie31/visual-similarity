@@ -1,6 +1,5 @@
 import os
 import argparse
-from pre_processing import pre_processing_transforms
 from featureExtractor import FeatureExtractor
 from models import models_dict
 from dataset import TTLDataset
@@ -72,7 +71,6 @@ def main():
     extractor = FeatureExtractor(processor, models_dict)
     extractor.extract_features_from_directory(
         args.data,
-        pre_processing_transforms,
         args.batch_size,
     )
 

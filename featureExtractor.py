@@ -4,9 +4,8 @@ import pickle
 import numpy as np
 import torch
 import torch.nn as nn
-import torchvision.transforms as transforms
 
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, ConcatDataset
 from torch.utils.hooks import RemovableHandle
 from pathlib import Path
 from typing import List, Tuple, Dict
@@ -17,6 +16,7 @@ from tqdm import tqdm
 from dataset import TTLDataset, SimpleDataset
 from processor import Processor
 from models import get_layer_index
+from transforms import *
 
 
 class FeatureExtractor:
@@ -52,7 +52,7 @@ class FeatureExtractor:
 
     @torch.no_grad()
     def extract_features_from_directory(
-        self, path: str, transforms=None, batch_size: int = 1
+        self, path: str, batch_size: int = 1
     ):
         """
         This will extract the features of the images located at path.
@@ -80,7 +80,15 @@ class FeatureExtractor:
             print(
                 "The path you gave contains subdirectories, will assume it's a TTL like dataset."
             )
-            dataset = TTLDataset(path, transform=transforms)
+            dataset_original = TTLDataset(path, transform=pre_processing_transforms)
+            dataset_aug = TTLDataset(
+                path,
+                transform=data_aug_transform,
+                target_transform=aug_target_transform,
+            )
+
+            dataset = ConcatDataset([dataset_original, dataset_aug])
+            dataset.__class__.__name__ = 'TTLDataset'
 
         loader = DataLoader(dataset, batch_size=batch_size)
 
@@ -111,8 +119,8 @@ class FeatureExtractor:
         loader (DataLoader): torch.utils.data.Dataloader
         """
         assert isinstance(loader, DataLoader)
-
-        is_ttl = isinstance(loader.dataset, TTLDataset)
+        
+        is_ttl = loader.dataset.__class__.__name__ == 'TTLDataset'
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"Extracting features with {len(self.models_names)} models !")
@@ -203,7 +211,8 @@ class FeatureExtractor:
         self, model: nn.Module, loader: DataLoader, device
     ) -> DataLoader:
 
-        is_ttl = isinstance(loader.dataset, TTLDataset)
+        # changed this so it can work with ConcatDataset
+        is_ttl = loader.dataset.__class__.__name__ == 'TTLDataset'
         good_batch_size = False
         batch_size = loader.batch_size
         new_loader = DataLoader(loader.dataset, batch_size=loader.batch_size)

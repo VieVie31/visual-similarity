@@ -1,6 +1,7 @@
 import os
 
 import torch
+import numpy as np
 import torchvision.transforms as transforms
 from torch.utils.data import Dataset
 from skimage import io
@@ -9,11 +10,12 @@ from typing import Tuple, Dict
 
 
 class TTLDataset(Dataset):
-    def __init__(self, root_dir: str, transform=None):
+    def __init__(self, root_dir: str, transform=None, target_transform=None):
         """
         Args:
             root_dir (str): Directory with all the images. left & right
             transform (callable, optional): Optional transform to be applied on a sample.
+            target_transform (callable, optional): Optional transform to be applied on a target (label).
         """
         assert isinstance(root_dir, str)
 
@@ -23,6 +25,7 @@ class TTLDataset(Dataset):
             self.right_images,
         ) = self.check_directories_and_get_images_paths(self.root_dir)
         self.transform = transform
+        self.target_transform = target_transform
 
     def __len__(self):
         return len(self.right_images)
@@ -41,11 +44,15 @@ class TTLDataset(Dataset):
             sample["left"] = self.transform(sample["left"])
             sample["right"] = self.transform(sample["right"])
 
+        label = left_img_path.name
+        if self.target_transform:
+            label = self.target_transform(label)
+
         # same label for both and using name rather than stem to deal with the case of 2 imgs that
         # share the same name with diff extensions
         return (
             sample,
-            left_img_path.name,
+            label,
         )
 
     def check_directories_and_get_images_paths(self, root_dir):
@@ -109,3 +116,26 @@ class SimpleDataset(Dataset):
         assert len(images) > 0
 
         return [root_dir / f for f in images]
+
+
+class EmbDataset(Dataset):
+    def __init__(self, path: str):
+        self.embds = self._load_embds(path)
+        assert "left" in self.embds and "left_name" in self.embds
+        assert "right" in self.embds and "right_name" in self.embds
+        assert len(self.embds["left"]) == len(self.embds["right"]) and len(
+            self.embds["left"]
+        ) == len(self.embds["left_name"])
+        assert len(self.embds["right"]) == len(self.embds["right_name"])
+
+    def _load_embds(self, path: str) -> dict:
+        return np.load(path, allow_pickle=True).reshape(-1)[0]
+
+    def __getitem__(self, i):
+        left, right = self.embds["left"][i], self.embds["right"][i]
+        left, right = torch.from_numpy(left).float(), torch.from_numpy(right).float()
+
+        return ({"left": left, "right": right}, self.embds["left_name"][i])
+
+    def __len__(self):
+        return len(self.embds["left"])
