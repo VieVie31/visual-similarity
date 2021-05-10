@@ -1,72 +1,26 @@
+import argparse
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
-from torch.utils.data.sampler import SubsetRandomSampler
 from dataset import EmbDataset
 
 import matplotlib.pyplot as plt
 import numpy as np
+import utils
+from pathlib import Path
 from tqdm.auto import tqdm, trange
-from labml import lab, tracker, experiment
+from torch.utils.tensorboard import SummaryWriter
+from config import config
 
-
-path = "C:\\Users\\Amine\\Desktop\\saved_features\\AdaptationProcessor\\resnet101\\resnet101.npy"
-tracker.set_text("using : " + path.split("\\")[-1])
-
-# ✨ Set the types of the stats/indicators.
-# They default to scalars if not specified
-tracker.set_queue("loss.train", 20, True)
-tracker.set_histogram("loss.valid", True)
-tracker.set_scalar("accuracy.valid", True)
-
-
-config = {
-    "epochs": 200,
-    "validation_split": 0.25,
-    "shuffle_dataset": False,
-    "use_cuda": False,
-    "seed": 5,
-    "train_log_interval": 10,
-    "learning_rate": 0.01,
-    "temperature": 15,
-    "topk": 1,
-}
-
-is_cuda = config["use_cuda"] and torch.cuda.is_available()
-if not is_cuda:
-    device = torch.device("cpu")
-else:
-    device = torch.device(f"cuda:0")
-
-embds_dataset = EmbDataset(path)
-
-
-# Creating data indices for training and validation splits:
-dataset_size = len(embds_dataset)
-indices = list(range(dataset_size))
-split = int(np.floor(config["validation_split"] * dataset_size))
-if config["shuffle_dataset"]:
-    np.random.seed(config["seed"])
-    np.random.shuffle(indices)
-train_indices, val_indices = indices[split:], indices[:split]
-
-# Creating PT data samplers and loaders:
-train_sampler = SubsetRandomSampler(train_indices)
-valid_sampler = SubsetRandomSampler(val_indices)
-
-train_loader = torch.utils.data.DataLoader(
-    embds_dataset, batch_size=len(train_indices), sampler=train_sampler
-)
-
-valid_loader = torch.utils.data.DataLoader(
-    embds_dataset, batch_size=len(val_indices), sampler=valid_sampler
-)
+from types import FunctionType
+from typing import Dict
 
 
 class Adaptation(nn.Module):
-    def __init__(self, in_dim):
+    def __init__(self, in_dim=256):
         super().__init__()
         self.weight_matrix = nn.Linear(in_dim, 1024, bias=False)
 
@@ -76,20 +30,8 @@ class Adaptation(nn.Module):
         return x
 
 
-def sim_matrix(a, b, eps=1e-8):
-    """
-    added eps for numerical stability
-    """
-    a_n, b_n = a.norm(dim=1)[:, None], b.norm(dim=1)[:, None]
-    a_norm = a / torch.max(a_n, eps * torch.ones_like(a_n))
-    b_norm = b / torch.max(b_n, eps * torch.ones_like(b_n))
-    sim_mt = torch.mm(a_norm, b_norm.transpose(0, 1))
-
-    return sim_mt
-
-
 def calc_loss(left, right, temp):
-    sim1 = sim_matrix(left, right)
+    sim1 = utils.sim_matrix(left, right)
     sim2 = sim1.t()
 
     loss_left2right = F.cross_entropy(
@@ -103,88 +45,190 @@ def calc_loss(left, right, temp):
     return loss
 
 
-def topk(left, right, k):
-    sim = -sim_matrix(left, right)
-    sorted_idx = sim.argsort(1)
-
-    sens1 = np.array([lbl in sorted_idx[lbl][:k] for lbl in range(len(left))])
-    sim = sim.t()
-    sorted_idx = sim.argsort(1)
-    sens2 = np.array([lbl in sorted_idx[lbl][:k] for lbl in range(len(left))])
-
-    return (sens1 | sens2).mean()
-
-
-def train(model, loss_func, optimizer, loader, device, model_log_interval):
+def training_step(model, loss_func, optimizer, loader, device):
+    """
+    Training the model for one epoch.
+    """
     model.train()
 
-    for i, (data, target) in enumerate(loader):
-        left, right = data["left"], data["right"]
-        left, right = left.to(device), right.to(device)
+    data, target = next(iter(loader))
 
-        out_left, out_right = model(left), model(right)
+    left, right = data["left"], data["right"]
+    left, right = left.to(device), right.to(device)
 
-        loss = loss_func(out_left, out_right, config["temperature"])
+    out_left, out_right = model(left), model(right)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    loss = loss_func(out_left, out_right, config["temperature"])
 
-        # ✨ Increment the global step
-        tracker.add_global_step(len(data))
-        # ✨ Save stats
-        tracker.save({"loss.train": loss})
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
 
-        if (i + 1) % model_log_interval == 0:
-            # ✨ Save model stats
-            tracker.save(model=model)
+    return {"Train/Loss": loss.item()}
 
 
 def validate(model, loss_func, loader, device):
+    """
+    Validating the model.
+    """
     model.eval()
 
-    correct = 0
     with torch.no_grad():
-        for data, target in loader:
-            left, right = data["left"], data["right"]
-            left, right = left.to(device), right.to(device)
-            out_left, out_right = model(left), model(right)
+        data, target = next(iter(loader))
+        left, right = data["left"], data["right"]
+        left, right = left.to(device), right.to(device)
+        out_left, out_right = model(left), model(right)
 
-            tracker.add(
-                "loss.valid", loss_func(out_left, out_right, config["temperature"])
-            )
+        test_loss = loss_func(out_left, out_right, config["temperature"])
 
-    # **✨ Save stats**
-    tracker.save(
-        {f'top {config["topk"]}.valid': topk(out_left, out_right, config["topk"])}
-    )
-    tracker.save({f"top 5.valid": topk(out_left, out_right, 5)})
+        metrics = {"Test/Loss": test_loss.item()}
+
+        for k in config["topk"]:
+            metrics[f"Test/top {k}"] = utils.topk(out_left, out_right, k)
+
+        return metrics
 
 
-model = Adaptation(256)
-optimizer = torch.optim.Adam(
-    model.parameters(), lr=config["learning_rate"], weight_decay=1e-5
-)
+def train(
+    model: nn.Module,
+    loss_func: FunctionType,
+    train_loader: DataLoader,
+    valid_loader: DataLoader,
+    num_epochs: int,
+    save_to: str,
+    device: str,
+) -> Dict:
+    """
+    This will train the model with the given optimizer for {num_epochs} epochs.
+    And it will save the metrics defined in training_step and validate in the given path {save_to}.
+    """
+    writer = SummaryWriter(save_to)
+    metrics_per_run = {"train": dict(), "test": dict()}
 
-experiment.create(
-    name="adapt",
-    comment="Adaptation learning using extracted embds of " + path.split("\\")[-1],
-)
-experiment.configs(config)
-experiment.add_pytorch_models(dict(model=model))
-
-with experiment.start():
-    for epoch in range(1, config["epochs"] + 1):
-        train(
+    for epoch in trange(1, num_epochs + 1):
+        info = training_step(
             model,
-            calc_loss,
+            loss_func,
             optimizer,
             train_loader,
             device,
-            config["train_log_interval"],
         )
-        validate(model, calc_loss, valid_loader, device)
-        tracker.new_line()
+        for metric, val in info.items():
+            if not (metric in metrics_per_run["train"]):
+                metrics_per_run["train"][metric] = []
+            metrics_per_run["train"][metric].append(val)
 
-        # ✨ Save the models
-        experiment.save_checkpoint()
+            writer.add_scalar(metric, val, epoch)
+            writer.flush()
+
+        info = validate(model, loss_func, valid_loader, device)
+        for metric, val in info.items():
+            if not (metric in metrics_per_run["test"]):
+                metrics_per_run["test"][metric] = []
+            metrics_per_run["test"][metric].append(val)
+
+            writer.add_scalar(metric, val, epoch)
+            writer.flush()
+
+    np.save(run_path / "data", metrics_per_run)
+    return metrics_per_run
+
+
+parser = argparse.ArgumentParser(description="Training an adaptation model")
+parser.add_argument(
+    "-d",
+    "--data",
+    required=True,
+    type=str,
+    metavar="DIR",
+    help="Path of the extracted embeddings",
+)
+parser.add_argument(
+    "-s",
+    "--save-to",
+    required=True,
+    type=str,
+    metavar="DIR",
+    help="Path to which we are going to save the calculated metrics (tensorboard)",
+)
+parser.add_argument(
+    "-r",
+    "--runs",
+    type=int,
+    metavar="N",
+    default=1,
+    help="Number of runs",
+)
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+
+    is_cuda = config["use_cuda"] and torch.cuda.is_available()
+    if not is_cuda:
+        device = torch.device("cpu")
+    else:
+        device = torch.device(f"cuda:0")
+
+    # load the dataset and split
+    embds_dataset = EmbDataset(args.data)
+    train_loader, valid_loader = utils.split_train_test(
+        embds_dataset, config["test_split"], config["seed"], config["shuffle_dataset"]
+    )
+
+    # multiple runs
+    metrics_of_all_runs = []
+
+    for run in trange(args.runs):
+        run_path = Path(args.save_to) / f"run{run+1}"
+        model = Adaptation()
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
+
+        metrics_per_run = train(
+            model,
+            calc_loss,
+            train_loader,
+            valid_loader,
+            config["epochs"],
+            run_path,
+            device,
+        )
+
+        metrics_of_all_runs.append(metrics_per_run)
+
+        # save the model and the optimizer state_dics for this run
+        torch.save(
+            {
+                "epoch": config["epochs"],
+                "state_dict": model.state_dict(),
+                "optimzier": optimizer.state_dict(),
+            },
+            run_path / "model_and_optimizer.pt",
+        )
+
+    # save all runs metrics into one file
+    np.save(Path(args.save_to) / "all_runs", metrics_of_all_runs)
+
+    avg_path = Path(args.save_to) / "avg"
+    writer = SummaryWriter(avg_path)
+
+    # TODO generalize this
+
+    # constructing the avg values for the saved metrics
+    avg = dict()
+
+    for k in metrics_of_all_runs[0].keys():
+        for kk in metrics_of_all_runs[0][k].keys():
+            avg[kk] = np.average(
+                [
+                    metrics_of_all_runs[i][k][kk]
+                    for i in range(len(metrics_of_all_runs))
+                ],
+                axis=0,
+            )
+
+            for i in range(len(avg[kk])):
+                writer.add_scalar("Avg_" + kk, avg[kk][i], i)
+                writer.flush()
+
+    # save avg of all runs
+    np.save(Path(args.save_to) / "avg_of_all_runs", avg)
