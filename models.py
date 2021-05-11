@@ -1,7 +1,8 @@
-import utils
+import my_utils
 import torch
 import torch.nn as nn
 import torchvision.models
+import torchvision.transforms as transforms
 import timm
 
 from facenet_pytorch import InceptionResnetV1
@@ -24,11 +25,11 @@ models_dict = dict()
 
 # OPENAI
 
-clip_rn50x4 = lambda *args: utils.load_clip_model('RN50x4', *args)
+clip_rn50x4 = lambda *args: my_utils.load_clip_model("RN50x4", *args)
 models_dict["clip_rn50x4"] = {
     "model": clip_rn50x4,
     "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
-    "transform": utils.get_clip_transforms('RN50x4'),
+    "transform": my_utils.get_clip_transforms("RN50x4"),
 }
 
 # SUPERVISED
@@ -40,7 +41,7 @@ models_dict["resnet18"] = {
     "model": resnet18,
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
-"""
+
 resnet34 = lambda *args: torchvision.models.resnet34(pretrained=True, *args).eval()
 models_dict["resnet34"] = {
     "model": resnet34,
@@ -175,16 +176,15 @@ models_dict["facenet"] = {
 }
 
 
-# THIS DOESNT WORK TOO
 # Vision Transformer
 # all versions are available here: https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision_transformer.py
-# models_dict["ViT"] = {
-#     "model": lambda *args: timm.create_model(
-#         "vit_base_patch16_224", pretrained=True, *args
-#     ).eval(),
-#     "layers": [-2],
-# }
 
+models_dict["ViT"] = {
+    "model": lambda *args: timm.create_model(
+        "vit_base_patch16_224", pretrained=True, *args
+    ).eval(),
+    "layers": [-2],
+}
 
 # SEMI-SUPERVISED
 
@@ -208,38 +208,39 @@ models_dict["barlow"] = {
 
 models_dict["dino_resnet50"] = {
     "model": lambda *args: torch.hub.load(
-        'facebookresearch/dino:main', 'dino_resnet50', *args
+        "facebookresearch/dino:main", "dino_resnet50", *args
     ).eval(),
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
 
-############## These aren't working for the time being, needs more processing #################
+"""
+############## These aren't working for the time being #################
 
-# models_dict["deits16"] = {
-#     "model": lambda *args: torch.hub.load(
-#         'facebookresearch/dino:main', 'dino_deits16', *args
-#     ).eval(),
-#     "layers": [-2],
-# }
+models_dict["deits16"] = {
+    "model": lambda *args: torch.hub.load(
+        'facebookresearch/dino:main', 'dino_deits16', *args
+    ).eval(),
+    "layers": [-2],
+}
 
-# models_dict["deits8"] = {
-#     "model": lambda *args: torch.hub.load(
-#         'facebookresearch/dino:main', 'dino_deits8', *args
-#     ).eval(),
-#     "layers": [-2],
-# }
+models_dict["deits8"] = {
+    "model": lambda *args: torch.hub.load(
+        'facebookresearch/dino:main', 'dino_deits8', *args
+    ).eval(),
+    "layers": [-2],
+}
 
-# models_dict["dino_vitb8"] = {
-#     "model": lambda *args: torch.hub.load(
-#         'facebookresearch/dino:main', 'dino_vitb8', *args
-#     ).eval(),
-#     "layers": [-2],
-# }
+models_dict["dino_vitb8"] = {
+    "model": lambda *args: torch.hub.load(
+        'facebookresearch/dino:main', 'dino_vitb8', *args
+    ).eval(),
+    "layers": [-2],
+}
 
-# models_dict["dino_vitb16"] = {
-#     "model": lambda *args: torch.hub.load(
-#         'facebookresearch/dino:main', 'dino_vitb16', *args
-#     ).eval(),
-#     "layers": [-2],
-# }
+models_dict["dino_vitb16"] = {
+    "model": lambda *args: torch.hub.load(
+        'facebookresearch/dino:main', 'dino_vitb16', *args
+    ).eval(),
+    "layers": [-2],
+}
 """

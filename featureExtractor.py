@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 from dataset import TTLDataset, SimpleDataset
 from processor import Processor, AdaptationProcessor
-from utils import get_layer_index
+from my_utils import get_layer_index
 
 import transforms as default_transforms
 
@@ -52,6 +52,8 @@ class FeatureExtractor:
         self.models_names = list(models_dict.keys())
         self.hooks_dict = dict()
 
+        self.printed_dataset_info = False 
+
     @torch.no_grad()
     def extract_features_from_directory(
         self, path: str, batch_size: int = 1, add_augmentation: bool = False
@@ -86,23 +88,20 @@ class FeatureExtractor:
 
         print(f"Extracting features with {len(self.models_names)} models !")
 
-        checkpoint = self.restore_checkpoint()
-        if checkpoint:
-            print(
-                f"Found checkpoint ! Do you want to  continue from {checkpoint[0]} ",
-                end="",
-            )
-
-            restore = input("(y/n) ?")
-            while restore.lower() not in ["y", "n"]:
-                restore = input("Please type y or n: ")
-
-            restore = True if restore == "y" else False
-
-        t = tqdm(checkpoint if checkpoint and restore else self.models_names)
-
+        t = tqdm(self.models_names)
         for model in t:
             model_name = model
+            
+            # we are going to need the original path in case we have a TTL dataset
+            self.original_save_path = self.save_path
+
+            # don't overwrite the old calculated features
+            skip = self.__skip_if_found(model_name)
+            if skip:
+                print(f"[Info] Skipping {model_name}. Found old calculated embds for this model !")
+                t.update(1)
+                continue
+
             t.set_description(f"Models Loop: Loading {model_name} model...")
             t.refresh()
 
@@ -118,9 +117,6 @@ class FeatureExtractor:
             # pass the imgs into the model so we can capture the intermediate layers outputs.
             # self.corresponding_labels will be used in get_activation method below
             # to know the label for each img in the batch
-
-            # we are going to need the original path in case we have a TTL dataset
-            self.original_save_path = self.save_path
 
             # construct the dataset and the loader
             dataset = self.__construct_dataset(path, model_name, add_augmentation)
@@ -180,9 +176,6 @@ class FeatureExtractor:
 
             self.processor.set_path(self.original_save_path)
             self.processor.execute()
-
-            if hasattr(self, "dataset_path"):
-                self.save_checkpoint(self.dataset_path, model_name)
 
     def __adapt_batch_size(
         self, model: nn.Module, loader: DataLoader, device
@@ -248,9 +241,12 @@ class FeatureExtractor:
         if len(dirs) == 0:
             dataset_original = SimpleDataset(path, transform=model_transforms["data"])
         else:
-            print(
-                "The path you gave contains subdirectories, will assume it's a TTL like dataset."
-            )
+            if not self.printed_dataset_info:
+                print(
+                    "The path you gave contains subdirectories, will assume it's a TTL like dataset."
+                )
+                self.printed_dataset_info = True
+
             dataset_original = TTLDataset(path, transform=model_transforms["data"])
 
         if add_augmentation:
@@ -364,33 +360,20 @@ class FeatureExtractor:
 
         return hook
 
-    def load_checkpoint(self, path: str):
-        with open(path, "rb") as f:
-            return pickle.load(f)
-
-    def restore_checkpoint(self, path="name.ckpt"):
+    def __skip_if_found(self, model_name: str) -> bool:
+        """
+        This will see if we already used this model to extract the features or not.
+        If there are files inside the corresponding directory, it will assume that we already did
+        and will return True.
+        """
         try:
-            d = self.load_checkpoint(path)
-            p = os.path.abspath(self.dataset_path)
-            if p in d:
-                return d[p]
+            _, _, files = next(
+                os.walk(self.original_save_path / self.processor.name / str(model_name))
+            )
 
-            return None
-        except FileNotFoundError:
-            return None
+            if len(files) >= 2:
+                return True
+        except StopIteration:
+            return False
 
-    def save_checkpoint(self, dataset_path: str, model_name: str, save_to="name.ckpt"):
-        d = None
-        try:
-            d = self.load_checkpoint(save_to)
-        except FileNotFoundError:
-            pass
-
-        d = d if d else dict()
-
-        d[os.path.abspath(dataset_path)] = self.models_names[
-            self.models_names.index(model_name) + 1 :
-        ]
-
-        with open(save_to, "wb") as f:
-            pickle.dump(d, f)
+        return False

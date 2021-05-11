@@ -20,6 +20,7 @@ class Processor(ABC):
         assert isinstance(save_path, str)
 
         self.save_path = Path(save_path)
+        self.name = self.__class__.__name__
 
     def set_path(self, path: Path):
         assert isinstance(path, Path)
@@ -86,7 +87,7 @@ class SaveProcessor(Processor):
         if self.imgs is not None:
             save_path = (
                 self.save_path
-                / str(self.__class__.__name__)
+                / str(self.name)
                 / str(self.model_name)
                 / str(self.layer_name)
             )
@@ -163,7 +164,7 @@ class PCAProcessor(Processor):
 
                 save_path = (
                     self.save_path
-                    / str(self.__class__.__name__)
+                    / str(self.name)
                     / str(self.model_name)
                     / str(self.layer_name)
                 )
@@ -263,9 +264,7 @@ class AdaptationProcessor(Processor):
 
             print("Saving...")
             # serialize and save
-            save_path = (
-                self.save_path / str(self.__class__.__name__) / str(self.model_name)
-            )
+            save_path = self.save_path / str(self.name) / str(self.model_name)
             save_path.mkdir(parents=True, exist_ok=True)
 
             if len(self.save_path_names) > 1:
@@ -305,7 +304,8 @@ class AdaptationProcessor(Processor):
                 if key != "names"
             ]
             l = [
-                F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x for x in l
+                F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x
+                for x in l
             ]  # avg_pool, squeeze and then normalize
             # won't work if len(dataset) % batch_size == 1
 
