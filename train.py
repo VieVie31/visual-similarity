@@ -177,11 +177,18 @@ if __name__ == "__main__":
 
     # multiple runs
     metrics_of_all_runs = []
+    optimizers_args = [{'lr': 1e-3, 'weight_decay': 1e-5}, {'lr': 1e-2, 'weight_decay': 1e-2},
+    {'lr': 1e-1, 'weight_decay': 1e-1}, {'lr': 1, 'weight_decay': 1e-3}]
 
     for run in trange(args.runs):
         run_path = Path(args.save_to) / f"run{run+1}"
         model = Adaptation()
-        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
+        optimizer = torch.optim.Adam(model.parameters(), **optimizers_args[run])
+
+        writer = SummaryWriter(run_path)
+        writer.add_text('Optimizer', str(optimizer).replace('\n', '  \n'))
+        writer.add_text('Model', str(model).replace('\n', '  \n'))
+        
 
         metrics_per_run = train(
             model,

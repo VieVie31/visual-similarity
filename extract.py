@@ -61,7 +61,10 @@ parser.add_argument(
     help="Which processor to use, save or pca ?  (default: save)",
 )
 
-# layers indices are now specified in models_dict
+augment_parser = parser.add_mutually_exclusive_group(required=False)
+augment_parser.add_argument("--data-aug", dest="augment", action="store_true")
+augment_parser.add_argument("--no-data-aug", dest="augment", action="store_false")
+parser.set_defaults(augment=False)
 
 
 def main():
@@ -69,10 +72,7 @@ def main():
     processor = args.processor
 
     extractor = FeatureExtractor(processor, models_dict)
-    extractor.extract_features_from_directory(
-        args.data,
-        args.batch_size,
-    )
+    extractor.extract_features_from_directory(args.data, args.batch_size, args.augment)
 
 
 if __name__ == "__main__":

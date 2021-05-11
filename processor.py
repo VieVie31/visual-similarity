@@ -219,7 +219,6 @@ class AdaptationProcessor(Processor):
         """
         assert isinstance(model_name, str)
         assert isinstance(layer_name, str)
-        assert len(layer_output.size()) == 4
         assert layer_output.size()[0] == len(names)
 
         self.model_name = model_name
@@ -243,7 +242,7 @@ class AdaptationProcessor(Processor):
 
         self.features_per_group_dict[group_name][layer_name] = layer_output
         self.features_per_group_dict[group_name]["names"] = [
-            group_name + "_" + name for name in names
+            group_name + "_________" + name for name in names
         ]
 
     def execute(self):
@@ -276,10 +275,10 @@ class AdaptationProcessor(Processor):
                 for i in range(len(self.names)):
                     if "left" in self.names[i]:
                         d["left"].append(reduced_features[i])
-                        d["left_name"].append(self.names[i].split("_")[-1])
+                        d["left_name"].append(self.names[i].split("_________")[-1])
                     else:
                         d["right"].append(reduced_features[i])
-                        d["right_name"].append(self.names[i].split("_")[-1])
+                        d["right_name"].append(self.names[i].split("_________")[-1])
 
                 d["left"], d["right"] = np.asarray(d["left"]), np.asarray(d["right"])
             else:
@@ -306,7 +305,7 @@ class AdaptationProcessor(Processor):
                 if key != "names"
             ]
             l = [
-                F.normalize(self.avg(x).squeeze()) for x in l
+                F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x for x in l
             ]  # avg_pool, squeeze and then normalize
             # won't work if len(dataset) % batch_size == 1
 

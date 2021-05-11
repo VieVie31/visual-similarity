@@ -1,3 +1,4 @@
+import utils
 import torch
 import torch.nn as nn
 import torchvision.models
@@ -11,26 +12,24 @@ from facenet_pytorch import InceptionResnetV1
     The use of lambda expressions is merely a trick to not load all the models at once when executing
     the script. Instead, we load just the lambda expressions (FunctionType), and then in the featureExtractor
     we'll loop over all these lambdas expressions and we'll load model by model.
-    If we keep the previous version, we'll need to load all the models into memory first and then we can
-    start extracting features, which is horrible if we have a lot of models (huge time is needed to 
-    load all the models and we need a LOT of RAM), hence the use of this trick.
 
-    Each value of this dictionnary must be a dict itself with 2 keys:
+    Each value of this dictionnary must be a dict itself with 2 or 3 keys:
         model: the lambda expression that will be called to load the model.
         layers: List[int or str] ( the layers indices or names of which we want to extract
                                    the output of this model )
+        transform (optional): torchvision.transforms (the transforms that will be applied to the dataset)
+                              if not present, we'll use the default one in transforms.py file.
 """
-
-
-def get_layer_index(model: nn.Module, layer_name: str):
-    assert isinstance(model, nn.Module)
-    assert isinstance(layer_name, str)
-    assert hasattr(model, layer_name)
-
-    return list(model.modules()).index(getattr(model, layer_name))
-
-
 models_dict = dict()
+
+# OPENAI
+
+clip_rn50x4 = lambda *args: utils.load_clip_model('RN50x4', *args)
+models_dict["clip_rn50x4"] = {
+    "model": clip_rn50x4,
+    "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
+    "transform": utils.get_clip_transforms('RN50x4'),
+}
 
 # SUPERVISED
 
@@ -39,9 +38,9 @@ models_dict = dict()
 resnet18 = lambda *args: torchvision.models.resnet18(pretrained=True, *args).eval()
 models_dict["resnet18"] = {
     "model": resnet18,
-    "layers": [-2],
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
-
+"""
 resnet34 = lambda *args: torchvision.models.resnet34(pretrained=True, *args).eval()
 models_dict["resnet34"] = {
     "model": resnet34,
@@ -243,3 +242,4 @@ models_dict["dino_resnet50"] = {
 #     ).eval(),
 #     "layers": [-2],
 # }
+"""

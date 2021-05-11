@@ -75,7 +75,7 @@ class TTLDataset(Dataset):
 
 
 class SimpleDataset(Dataset):
-    def __init__(self, root_dir: str, transform=None):
+    def __init__(self, root_dir: str, transform=None, target_transform=None):
         """
         Args:
             root_dir (str): Directory with all the images. left & right
@@ -86,22 +86,27 @@ class SimpleDataset(Dataset):
         self.root_dir = Path(root_dir)
         self.images = self.check_directories_and_get_images_paths(self.root_dir)
         self.transform = transform
+        self.target_transform = target_transform
 
     def __len__(self):
         return len(self.images)
 
-    def __getitem__(self, idx: int) -> Tuple[Dict, str]:
+    def __getitem__(self, idx: int) -> Tuple[np.ndarray, str]:
 
         img_path = self.images[idx]
 
         image = io.imread(img_path)
+        label = img_path.name
 
         if self.transform:
             image = self.transform(image)
 
+        if self.target_transform:
+            label = self.target_transform(label)
+
         return (
             image,
-            img_path.name,
+            label,
         )
 
     def check_directories_and_get_images_paths(self, root_dir):
@@ -119,8 +124,8 @@ class SimpleDataset(Dataset):
 
 
 class EmbDataset(Dataset):
-    def __init__(self, path: str):
-        self.embds = self._load_embds(path)
+    def __init__(self, path: str, only_original=True):
+        self.embds = self._load_embds(path, only_original)
         assert "left" in self.embds and "left_name" in self.embds
         assert "right" in self.embds and "right_name" in self.embds
         assert len(self.embds["left"]) == len(self.embds["right"]) and len(
@@ -128,8 +133,17 @@ class EmbDataset(Dataset):
         ) == len(self.embds["left_name"])
         assert len(self.embds["right"]) == len(self.embds["right_name"])
 
-    def _load_embds(self, path: str) -> dict:
-        return np.load(path, allow_pickle=True).reshape(-1)[0]
+    def _load_embds(self, path: str, only_original : bool) -> dict:
+        e = np.load(path, allow_pickle=True).reshape(-1)[0]
+
+        if only_original:
+            length = len(e['left'])
+            e['left'] = e['left'][: length // 2]
+            e['left_name'] = e['left_name'][: length // 2]
+            e['right'] = e['right'][: length // 2]
+            e['right_name'] = e['right_name'][: length // 2]
+
+        return e
 
     def __getitem__(self, i):
         left, right = self.embds["left"][i], self.embds["right"][i]

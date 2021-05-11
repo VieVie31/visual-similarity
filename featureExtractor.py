@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import torch
 import torch.nn as nn
+import torchvision.transforms as transforms
 
 from torch.utils.data import Dataset, DataLoader, ConcatDataset
 from torch.utils.hooks import RemovableHandle
@@ -14,9 +15,10 @@ from collections.abc import Iterable
 from tqdm import tqdm
 
 from dataset import TTLDataset, SimpleDataset
-from processor import Processor
-from models import get_layer_index
-from transforms import *
+from processor import Processor, AdaptationProcessor
+from utils import get_layer_index
+
+import transforms as default_transforms
 
 
 class FeatureExtractor:
@@ -52,7 +54,7 @@ class FeatureExtractor:
 
     @torch.no_grad()
     def extract_features_from_directory(
-        self, path: str, batch_size: int = 1
+        self, path: str, batch_size: int = 1, add_augmentation: bool = False
     ):
         """
         This will extract the features of the images located at path.
@@ -64,63 +66,22 @@ class FeatureExtractor:
                 left/*.[image_extensions]
                 right/*.[image_extensions]
 
-        Parameters:
-        path (str)       : path of the directory that contains the RGB images.
-        batch_size (int) : batch size that will be used in the loader.
-        """
-        assert isinstance(path, str)
-
-        _, dirs, _ = next(os.walk(path))
-        loader = None
-        dataset = None
-
-        if len(dirs) == 0:
-            dataset = SimpleDataset(path, transform=transforms)
-        else:
-            print(
-                "The path you gave contains subdirectories, will assume it's a TTL like dataset."
-            )
-            dataset_original = TTLDataset(path, transform=pre_processing_transforms)
-            dataset_aug = TTLDataset(
-                path,
-                transform=data_aug_transform,
-                target_transform=aug_target_transform,
-            )
-
-            dataset = ConcatDataset([dataset_original, dataset_aug])
-            dataset.__class__.__name__ = 'TTLDataset'
-
-        loader = DataLoader(dataset, batch_size=batch_size)
-
-        # check before extracting features
-        if self.processor.__class__.__name__ == "AdaptationProcessor":
-            if len(dataset) % loader.batch_size == 1:
-                raise ValueError(
-                    f"[len(dataset): {len(dataset)} % Batch size: {loader.batch_size} = 1].\n"
-                    "This batch size is inapproriate for this processor. "
-                    "It wi'll fail when trying to normalize the batch that contains only one tensor !"
-                )
-
-        # TODO: add checking for all processors that use PCA before extracting the features
-
-        self.dataset_path = path
-        self._extract_features(loader)
-
-    @torch.no_grad()
-    def _extract_features(self, loader: DataLoader):
-        """
-        This is the function that calls the forward method for each model when iterating over
-        the passed dataloader.
+        Then it will construct the dataset with the corresponding transforms and call the forward method
+        for each model.
         The models already have a forward hook registered to them ( this is done in the constructor ),
         and the hook implemented above will give them to the processor with the register method.
 
-
         Parameters:
-        loader (DataLoader): torch.utils.data.Dataloader
+        path (str)              : path of the directory that contains the RGB images.
+        batch_size (int)        : batch size that will be used in the loader.
+        add_augmentation (bool) : Add augmentation to the dataset or not ?
         """
-        assert isinstance(loader, DataLoader)
-        
-        is_ttl = loader.dataset.__class__.__name__ == 'TTLDataset'
+        assert isinstance(path, str)
+        batch_size = int(batch_size)
+        assert batch_size >= 1
+        assert isinstance(add_augmentation, bool)
+
+        self.dataset_path = path
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         print(f"Extracting features with {len(self.models_names)} models !")
@@ -161,12 +122,28 @@ class FeatureExtractor:
             # we are going to need the original path in case we have a TTL dataset
             self.original_save_path = self.save_path
 
+            # construct the dataset and the loader
+            dataset = self.__construct_dataset(path, model_name, add_augmentation)
+            loader = DataLoader(dataset, batch_size=batch_size)
+
+            # check before extracting features
+            if isinstance(self.processor, AdaptationProcessor):
+                if len(dataset) % loader.batch_size == 1:
+                    raise ValueError(
+                        f"[len(dataset): {len(dataset)} % Batch size: {loader.batch_size} = 1].\n"
+                        "This batch size is inapproriate for this processor. "
+                        "It wi'll fail when trying to normalize the batch that contains only one tensor !"
+                    )
+            # TODO: add checking for all processors that use PCA before extracting the features
+
             # now after the model is loaded, we'll test if we can use the provided batch size
             # we'll devide it by 2 until it fits the memory
             loader = self.__adapt_batch_size(model, loader, device)
 
             # we have determined a good batch size, let's register our hooks
             self.__register_hooks(model, model_name)
+
+            is_ttl = dataset.__class__.__name__ == "TTLDataset"
 
             if is_ttl:
                 with tqdm(total=len(loader), desc="Batch loop") as progress_bar:
@@ -212,7 +189,7 @@ class FeatureExtractor:
     ) -> DataLoader:
 
         # changed this so it can work with ConcatDataset
-        is_ttl = loader.dataset.__class__.__name__ == 'TTLDataset'
+        is_ttl = loader.dataset.__class__.__name__ == "TTLDataset"
         good_batch_size = False
         batch_size = loader.batch_size
         new_loader = DataLoader(loader.dataset, batch_size=loader.batch_size)
@@ -251,6 +228,90 @@ class FeatureExtractor:
         model = m_dict["model"].__call__()
 
         return model
+
+    def __construct_dataset(
+        self, path: str, model_name: str, add_augmentation: bool = False
+    ):
+        """
+        This method is used build the dataset and apply the corresponding transforms located at models
+        dictionnary.
+        """
+        assert model_name in self.models_names
+        assert isinstance(path, str)
+
+        # get the corresponding transforms
+        model_transforms = self.__get_transforms(model_name)
+
+        # build the dataset
+        _, dirs, _ = next(os.walk(path))
+
+        if len(dirs) == 0:
+            dataset_original = SimpleDataset(path, transform=model_transforms["data"])
+        else:
+            print(
+                "The path you gave contains subdirectories, will assume it's a TTL like dataset."
+            )
+            dataset_original = TTLDataset(path, transform=model_transforms["data"])
+
+        if add_augmentation:
+            Corresponding_dataset_constructor = (
+                SimpleDataset if len(dirs) == 0 else TTLDataset
+            )
+            dataset_aug = Corresponding_dataset_constructor(
+                path,
+                transform=model_transforms["data_aug"],
+                target_transform=model_transforms["target_aug"],
+            )
+
+            dataset = ConcatDataset([dataset_original, dataset_aug])
+
+            if isinstance(dataset_original, TTLDataset):
+                dataset.__class__.__name__ = "TTLDataset"
+
+            return dataset
+
+        return dataset_original
+
+    def __get_transforms(self, model_name: str) -> Dict:
+        """
+        Returns a dictionnary that contains the corresponding transforms of the model that will be applied
+        to the dataset.
+        """
+        assert model_name in self.models_names
+        m_dict = self.models_dict[model_name]
+
+        data_transform = (
+            m_dict["transform"]
+            if "transform" in m_dict
+            else default_transforms.pre_processing_transforms
+        )
+
+        """
+        still need to settle on this one, do we assume that aug_transform is a complete one or just
+        some transforms after the pre_processing done in m_dict["transform"] ?
+        For the time being we'll assume that it is done with the second approach as it is more convenient
+        to our case.
+        """
+        data_aug_transform = (
+            m_dict["aug_transform"]
+            if "aug_transform" in m_dict
+            else default_transforms.data_aug_transform
+        )
+        data_aug_transform = transforms.Compose(
+            [data_transform, default_transforms.data_aug_transform]
+        )
+
+        target_aug_transform = (
+            m_dict["target_transform"]
+            if "target_transform" in m_dict
+            else default_transforms.target_aug_transform
+        )
+
+        return {
+            "data": data_transform,
+            "data_aug": data_aug_transform,
+            "target_aug": target_aug_transform,
+        }
 
     def __register_hooks(
         self, model: nn.Module, model_name: str

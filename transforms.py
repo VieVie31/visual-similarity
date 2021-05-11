@@ -1,4 +1,5 @@
 # Here goes our pre_processing transforms that we're going to apply to our dataset
+# These are the default ones in case there is no tranforms defined in the models dict
 
 import torchvision.transforms as transforms
 
@@ -9,8 +10,6 @@ pre_processing_transforms = transforms.Compose(
     [transforms.ToTensor(), transforms.Resize(size=[224, 224]), normalize]
 )
 
-data_aug_transform = transforms.Compose(
-    [pre_processing_transforms, transforms.RandomHorizontalFlip(p=1)]
-)
+data_aug_transform = transforms.RandomHorizontalFlip(p=1)
 
-aug_target_transform = lambda label : 'augmented_' + label
+target_aug_transform = lambda label: "augmented_" + label
