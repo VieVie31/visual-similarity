@@ -23,7 +23,7 @@ from facenet_pytorch import InceptionResnetV1
 """
 models_dict = dict()
 
-# OPENAI
+# CLIP - OPENAI
 
 clip_rn50x4 = lambda *args: my_utils.load_clip_model("RN50x4", *args)
 models_dict["clip_rn50x4"] = {
@@ -31,6 +31,28 @@ models_dict["clip_rn50x4"] = {
     "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
     "transform": my_utils.get_clip_transforms("RN50x4"),
 }
+
+clip_rn50 = lambda *args: my_utils.load_clip_model("RN50", *args)
+models_dict["clip_rn50"] = {
+    "model": clip_rn50,
+    "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
+    "transform": my_utils.get_clip_transforms("RN50"),
+}
+
+clip_rn101 = lambda *args: my_utils.load_clip_model("RN101", *args)
+models_dict["clip_rn101"] = {
+    "model": clip_rn101,
+    "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
+    "transform": my_utils.get_clip_transforms("RN101"),
+}
+
+clip_vit32_b = lambda *args: my_utils.load_clip_model("ViT-B/32", *args)
+models_dict["clip_vit32_b"] = {
+    "model": clip_vit32_b,
+    "layers": ["ln_post"],
+    "transform": my_utils.get_clip_transforms("ViT-B/32"),
+}
+
 
 # SUPERVISED
 
@@ -68,6 +90,8 @@ models_dict["resnet152"] = {
 
 # # Big Transfer
 # # pretrained on imagenet21k, finetuned on imagenet1k
+
+#FIXME: pk les BiT-* sont avec juste des -2 et pas de layers intermédiaires ??!!
 
 models_dict["BiT-M-R50x1"] = {
     "model": lambda *args: timm.create_model(
@@ -156,10 +180,13 @@ models_dict["BiT-M-R152x4_in21k"] = {
 }
 
 
+
+# ALEXNET
 models_dict["alexnet"] = {
     "model": lambda *args: torchvision.models.alexnet(pretrained=True, *args).eval(),
     "layers": ["features"],
 }
+
 
 
 # # other efficientnet versions : torch.hub.list('rwightman/gen-efficientnet-pytorch')
@@ -170,10 +197,13 @@ models_dict["efficientnet_b0"] = {
     "layers": [-2],
 }
 
+
+# FACENET
 models_dict["facenet"] = {
     "model": lambda *args: InceptionResnetV1(pretrained="vggface2", *args).eval(),
     "layers": ["block8"],
 }
+
 
 
 # Vision Transformer
@@ -196,6 +226,68 @@ models_dict["resnet50_swsl"] = {
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
 
+models_dict["resnext101_32x8d_swsl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/semi-supervised-ImageNet1K-models", "resnext101_32x8d_swsl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+models_dict["resnext101_32x16d_swsl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/semi-supervised-ImageNet1K-models", "resnext101_32x16d_swsl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+
+
+
+models_dict["resnet50_ssl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/semi-supervised-ImageNet1K-models", "resnet50_ssl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+#TODO: ajouter les autres 101 32x8 et x16
+
+
+
+
+
+# WEAKLY-SUPERVISED
+
+# https://pytorch.org/hub/facebookresearch_WSL-Images_resnext/
+models_dict["resnext101_32x8d_wsl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/WSL-Images", "resnext101_32x8d_wsl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+models_dict["resnext101_32x16d_wsl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/WSL-Images", "resnext101_32x16d_wsl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+models_dict["resnext101_32x32d_wsl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/WSL-Images", "resnext101_32x32d_wsl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+models_dict["resnext101_32x48d_wsl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/WSL-Images", "resnext101_32x48d_wsl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
+
+
 
 # SELF-SUPERVISED
 
@@ -206,6 +298,7 @@ models_dict["barlow"] = {
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
 
+# Dino (SS)
 models_dict["dino_resnet50"] = {
     "model": lambda *args: torch.hub.load(
         "facebookresearch/dino:main", "dino_resnet50", *args
@@ -213,34 +306,30 @@ models_dict["dino_resnet50"] = {
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
 
-"""
-############## These aren't working for the time being #################
-
 models_dict["deits16"] = {
     "model": lambda *args: torch.hub.load(
         'facebookresearch/dino:main', 'dino_deits16', *args
     ).eval(),
-    "layers": [-2],
+    "layers": ["head"],
 }
 
 models_dict["deits8"] = {
     "model": lambda *args: torch.hub.load(
         'facebookresearch/dino:main', 'dino_deits8', *args
     ).eval(),
-    "layers": [-2],
+    "layers": ["head"],
 }
 
 models_dict["dino_vitb8"] = {
     "model": lambda *args: torch.hub.load(
         'facebookresearch/dino:main', 'dino_vitb8', *args
     ).eval(),
-    "layers": [-2],
+    "layers": ["head"],
 }
 
 models_dict["dino_vitb16"] = {
     "model": lambda *args: torch.hub.load(
         'facebookresearch/dino:main', 'dino_vitb16', *args
     ).eval(),
-    "layers": [-2],
+    "layers": ["head"],
 }
-"""
