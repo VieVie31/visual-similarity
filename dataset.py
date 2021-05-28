@@ -126,6 +126,8 @@ class SimpleDataset(Dataset):
 class EmbDataset(Dataset):
     def __init__(self, path: str, only_original=True):
         self.embds = self._load_embds(path, only_original)
+        self.augmented = not only_original
+        
         assert "left" in self.embds and "left_name" in self.embds
         assert "right" in self.embds and "right_name" in self.embds
         assert len(self.embds["left"]) == len(self.embds["right"]) and len(
@@ -136,6 +138,10 @@ class EmbDataset(Dataset):
     def _load_embds(self, path: str, only_original : bool) -> dict:
         e = np.load(path, allow_pickle=True).reshape(-1)[0]
 
+        if 'left_ebds' in e.keys():
+            e['left'] = e['left_ebds']
+            e['right'] = e['right_ebds']
+
         if only_original:
             length = len(e['left'])
             e['left'] = e['left'][: length // 2]
@@ -144,6 +150,13 @@ class EmbDataset(Dataset):
             e['right_name'] = e['right_name'][: length // 2]
 
         return e
+
+    def load_all_to_device(self, device):
+        embds, _ = self[:]
+        embds['left'].to(device)
+        embds['right'].to(device)
+
+        return embds
 
     def __getitem__(self, i):
         left, right = self.embds["left"][i], self.embds["right"][i]

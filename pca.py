@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 from sklearn.decomposition import PCA
 
-path = "..\\Desktop\\saved_features\\AdaptationProcessor"
+path = "../saved_features/AdaptationProcessor"
 out_dim = 256
 
 def check_dirct(root_dir):
@@ -28,6 +28,11 @@ embds_paths = check_dirct(path)
 
 for name, embd in embds_paths.items():
     print(embd)
+    
+    if Path('/'.join(str(embd).replace('\\', '/').split('/')[:-1]) + '/pca.npy').exists():
+        print(f"already exists, pass and do not recompute it...")
+        continue
+
     embds = np.load(embd, allow_pickle=True).reshape(-1)[0]
 
     left_right = np.concatenate([embds['left'], embds['right']])

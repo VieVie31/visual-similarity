@@ -178,7 +178,7 @@ class PCAProcessor(Processor):
             del self.features_per_layer_dict
             self.features_per_layer_dict = dict()
 
-
+'''
 class AdaptationProcessor(Processor):
     """
     This is our processor that will be used in practice. Here is what it does:
@@ -306,6 +306,178 @@ class AdaptationProcessor(Processor):
             l = [
                 F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x
                 for x in l
+            ]  # avg_pool, squeeze and then normalize
+            # won't work if len(dataset) % batch_size == 1
+
+            l = torch.cat(l, 1)  # concatenate the
+
+            # save merged features
+            for i in range(len(l)):
+                self.merged_features.append(l[i])
+                self.names.append(self.features_per_group_dict[group_name]["names"][i])
+
+        # reset the dict
+        del self.features_per_group_dict
+        self.features_per_group_dict = dict()
+
+'''
+
+class AdaptationProcessor(Processor):
+    """
+    This is our processor that will be used in practice. Here is what it does:
+        - Extract outputs from several layers
+        - Apply AvgPooling to these output to flatten them
+        - Concatenate them
+        - Apply PCA to reduce dimension
+        - Serialize the results
+    """
+
+    def __init__(self, save_path: str, out_dim: int):
+        assert int(out_dim) > 0
+        super().__init__(save_path)
+
+        self.PCA = PCA(out_dim)
+        self.out_dim = out_dim
+
+        self.avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.names = []
+        self.merged_features = []
+        self.features_per_group_dict = dict()
+        self.save_path_names = set()
+
+        self.last_group_name = ""
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_output: torch.Tensor,
+        names: Iterable,
+    ):
+        """
+        Save the batch in a dictionnary (keys are layers).
+        Check if the layer_name is already in the dict, if it is:
+            - start merging features
+            - save those merged features in another dictionnary
+            - reset the dictionnary.
+        """
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        #assert len(layer_output.size()) == 4
+        assert layer_output.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.save_path_names.add(self.save_path.name)
+        group_name = self.save_path.name
+
+        # a batch may consists of multiple groups (in case of ttl we have two: left & right)
+        # means we got a new batch
+        if (
+            group_name in self.features_per_group_dict
+            and layer_name in self.features_per_group_dict[group_name]
+        ):
+            self.calculate_merged_features_and_reset_dict()
+
+        if group_name not in self.features_per_group_dict:
+            self.features_per_group_dict[group_name] = dict()
+
+        if layer_name not in self.features_per_group_dict[group_name]:
+            self.features_per_group_dict[group_name][layer_name] = dict()
+
+        self.features_per_group_dict[group_name][layer_name] = layer_output
+        self.features_per_group_dict[group_name]["names"] = [
+            group_name + "_" + name for name in names
+        ]
+
+    def execute(self):
+        """
+        Fit PCA to the merged features and serialize.
+        """
+        # get the last ones
+        self.calculate_merged_features_and_reset_dict()
+
+        if len(self.merged_features) > 0:
+            # PCA fitting
+            print("PCA fitting in progress...")
+
+            # moving tensor to cpu before doing PCA fitting (sklearn doesn't support GPU yet)
+            X = torch.stack([x for x in self.merged_features]).cpu().numpy()
+            
+
+            print("Saving original features...")
+            # serialize and save
+            save_path = (
+                self.save_path / str(self.__class__.__name__) / str(self.model_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            if len(self.save_path_names) > 1:
+                d = {"left": [], "right": [], "left_name": [], "right_name": []}
+                assert len(self.names) == len(X)
+
+                for i in range(len(self.names)):
+                    if "left" in self.names[i]:
+                        d["left"].append(X[i])
+                        d["left_name"].append(self.names[i].split("_")[-1])
+                    else:
+                        d["right"].append(X[i])
+                        d["right_name"].append(self.names[i].split("_")[-1])
+
+                d["left"], d["right"] = np.asarray(d["left"]), np.asarray(d["right"])
+            else:
+                d = dict(zip(self.names, np.asarray(X)))
+
+            np.save(save_path / str(self.model_name), d)
+            """
+            print("PCA computation...", X.shape)
+
+            # Fit PCA
+            self.PCA = PCA(self.out_dim).fit(X)
+            print("vcoucou")
+            reduced_features = self.PCA.transform(X)
+            print("blipbloup")
+
+            if len(self.save_path_names) > 1:
+                d = {"left": [], "right": [], "left_name": [], "right_name": []}
+                assert len(self.names) == len(reduced_features)
+
+                for i in range(len(self.names)):
+                    if "left" in self.names[i]:
+                        d["left"].append(reduced_features[i])
+                        d["left_name"].append(self.names[i].split("_")[-1])
+                    else:
+                        d["right"].append(reduced_features[i])
+                        d["right_name"].append(self.names[i].split("_")[-1])
+
+                d["left"], d["right"] = np.asarray(d["left"]), np.asarray(d["right"])
+            else:
+                d = dict(zip(self.names, np.asarray(reduced_features)))
+
+            np.save(save_path / (str(self.model_name) + '_pca'), d)
+            dump(self.PCA, save_path / "pca.joblib")
+            """
+            # crucial line here if we are iterating over multiple models
+            del self.merged_features, self.names
+            self.merged_features = []
+            self.names = []
+
+            # here to just free up some space in memory
+            #del X, reduced_features
+            del X
+
+            print("done")
+
+    def calculate_merged_features_and_reset_dict(self):
+        for group_name in self.features_per_group_dict:
+            l = [
+                features
+                for key, features in self.features_per_group_dict[group_name].items()
+                if key != "names"
+            ]
+            
+            l = [
+                F.normalize(self.avg(x).squeeze() if len(x.shape) == 4 else x) for x in l
             ]  # avg_pool, squeeze and then normalize
             # won't work if len(dataset) % batch_size == 1
 

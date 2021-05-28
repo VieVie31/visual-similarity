@@ -88,10 +88,9 @@ models_dict["resnet152"] = {
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
 
+"""
 # # Big Transfer
 # # pretrained on imagenet21k, finetuned on imagenet1k
-
-#FIXME: pk les BiT-* sont avec juste des -2 et pas de layers intermédiaires ??!!
 
 models_dict["BiT-M-R50x1"] = {
     "model": lambda *args: timm.create_model(
@@ -178,7 +177,7 @@ models_dict["BiT-M-R152x4_in21k"] = {
     ).eval(),
     "layers": [-2],
 }
-
+"""
 
 
 # ALEXNET
@@ -196,6 +195,29 @@ models_dict["efficientnet_b0"] = {
     ).eval(),
     "layers": [-2],
 }
+
+models_dict["efficientnet_b1"] = {
+    "model": lambda *args: torch.hub.load(
+        "rwightman/gen-efficientnet-pytorch", "efficientnet_b1", pretrained=True, *args
+    ).eval(),
+    "layers": [-2],
+}
+
+models_dict["efficientnet_b2"] = {
+    "model": lambda *args: torch.hub.load(
+        "rwightman/gen-efficientnet-pytorch", "efficientnet_b2", pretrained=True, *args
+    ).eval(),
+    "layers": [-2],
+}
+
+models_dict["efficientnet_b3"] = {
+    "model": lambda *args: torch.hub.load(
+        "rwightman/gen-efficientnet-pytorch", "efficientnet_b3", pretrained=True, *args
+    ).eval(), 
+    "layers": [-2],
+}
+
+
 
 
 # FACENET
@@ -238,7 +260,8 @@ models_dict["resnext101_32x16d_swsl"] = {
         "facebookresearch/semi-supervised-ImageNet1K-models", "resnext101_32x16d_swsl", *args
     ).eval(),
     "layers": ["layer1", "layer2", "layer3", "layer4"],
-}
+} 
+
 
 
 
@@ -250,9 +273,19 @@ models_dict["resnet50_ssl"] = {
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
 
-#TODO: ajouter les autres 101 32x8 et x16
+models_dict["resnext101_32x8d_ssl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/semi-supervised-ImageNet1K-models", "resnext101_32x8d_ssl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
 
-
+models_dict["resnext101_32x8d_ssl"] = {
+    "model": lambda *args: torch.hub.load(
+        "facebookresearch/semi-supervised-ImageNet1K-models", "resnext101_32x16d_ssl", *args
+    ).eval(),
+    "layers": ["layer1", "layer2", "layer3", "layer4"],
+}
 
 
 
@@ -264,7 +297,7 @@ models_dict["resnext101_32x8d_wsl"] = {
         "facebookresearch/WSL-Images", "resnext101_32x8d_wsl", *args
     ).eval(),
     "layers": ["layer1", "layer2", "layer3", "layer4"],
-}
+}  
 
 models_dict["resnext101_32x16d_wsl"] = {
     "model": lambda *args: torch.hub.load(
@@ -278,7 +311,7 @@ models_dict["resnext101_32x32d_wsl"] = {
         "facebookresearch/WSL-Images", "resnext101_32x32d_wsl", *args
     ).eval(),
     "layers": ["layer1", "layer2", "layer3", "layer4"],
-}
+} 
 
 models_dict["resnext101_32x48d_wsl"] = {
     "model": lambda *args: torch.hub.load(
@@ -333,3 +366,53 @@ models_dict["dino_vitb16"] = {
     ).eval(),
     "layers": ["head"],
 }
+
+
+
+
+# Big Transfert
+models_dict["BiT-M-R50x1_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                    "resnetv2_50x1_bitm_in21k", pretrained=True, *args
+                        ).eval(),
+                            "layers": [6, 44, 93, -6],
+                            }
+ 
+ 
+models_dict["BiT-M-R50x3_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_50x3_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 93, -6],
+                }
+ 
+models_dict["BiT-M-R101x1_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_101x1_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 93, -6],
+                }
+ 
+models_dict["BiT-M-R101x3_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_101x3_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 93, -6],
+                }
+ 
+models_dict["BiT-M-R152x2_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                    "resnetv2_152x2_bitm_in21k", pretrained=True, *args
+                        ).eval(),
+                "layers": [6, 44, 137, -6], # 93+11*4
+                }
+ 
+models_dict["BiT-M-R152x4_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_152x4_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 137, -6],
+                }
+
+
+

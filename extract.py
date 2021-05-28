@@ -78,4 +78,5 @@ def main():
 if __name__ == "__main__":
     # example:
     # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -b 64 -p adapt 256
+    # python extract.py -d ../data_original -s ../saved_features -b 512 -p adapt 256 --data-aug
     main()

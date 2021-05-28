@@ -1,13 +1,16 @@
 import torch
 
+k = [1, 3]
+#k.extend(list(range(5, 101, 5)))
+
 config = {
-    "epochs": 5,
+    "epochs": 500,
     "test_split": 0.25,
-    "shuffle_dataset": False,
-    "use_cuda": False,
+    "shuffle_dataset": True,
+    "use_cuda": True,
     "seed": 5,
     # "train_log_interval": 10,
     "temperature": 15,
-    "topk": list(range(1, 6)),
-    "runs" : 5
+    "topk": k,
+    "runs" : 2
 }

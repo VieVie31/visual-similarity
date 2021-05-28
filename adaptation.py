@@ -106,7 +106,7 @@ class Experiment():
     """
     @staticmethod
     def split ( input_embeddings, config):
-        dataset_size = len(input_embeddings)
+        dataset_size = len(input_embeddings) 
         indices = list(range(dataset_size))
 
         split = int(np.floor(config["validation_split"] * dataset_size))
