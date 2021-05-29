@@ -1,3 +1,4 @@
+"""This is where we define the different adaptation modules. The one we used in practice is Adaptation."""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -46,6 +47,9 @@ class DummyNetwork(nn.Module):
         return x
 
 def calc_loss(left, right, temp, device):
+    """
+    Our loss function that is used in training.
+    """
     sim1 = utils.sim_matrix(left, right)
     sim2 = sim1.t()
 

@@ -1,3 +1,23 @@
+"""
+Script that we can use with command line arguments to extract the feature maps of the images located
+in some directory.
+
+usage: extract.py [-h] -d DIR -s DIR [-b N] [-p [PROCESSOR ...]] [--data-aug | --no-data-aug]
+
+Feature maps extractor
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DIR, --data DIR    Path to TTL dataset
+  -s DIR, --save-to DIR
+                        Path to which we are going to save the calculated features
+  -b N, --batch-size N  Batch size
+  -p [PROCESSOR ...], --processor [PROCESSOR ...]
+                        Which processor to use ? (default: save)
+  --data-aug
+  --no-data-aug
+"""
+
 import argparse
 from featuresExtractor import models_dict
 from featuresExtractor import FeatureExtractor

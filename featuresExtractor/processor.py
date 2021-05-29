@@ -1,4 +1,8 @@
-""" This is where we define our post processing function that will be used after the features extraction part"""
+""" 
+Here we define our processor classes, basically a processor will take the outputs from the selected
+layers of some models, and it is up to him to decide what he will do with these outputs.
+The one we used in practice in the AdaptationProcessorPCA.
+"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

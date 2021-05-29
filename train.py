@@ -1,3 +1,29 @@
+"""
+The script to use when you want to train some adaptation module on the extracted features (embeddings).
+
+usage: train.py [-h] -d DIR -s DIR [--model {original,peterson,dummy}] [-e N] [-r N] [-t N] [--test-split N]
+                [-k N [N ...]] [--gpu | --cpu]
+
+Training an adaptation model
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DIR, --data DIR    Path of the extracted embeddings
+  -s DIR, --save-to DIR
+                        Path to which we are going to save the calculated metrics (tensorboard)
+  --model {original,peterson,dummy}
+                        Which adaptation model to use ?. Default is original.
+  -e N, --epochs N      Number of epochs. Default is 150.
+  -r N, --runs N        Number of runs. Default is 1.
+  -t N, --temperature N
+                        Temperature value. Default is 1.
+  --test-split N        Splitting percentage for the validation set. Default is 0.25.
+  -k N [N ...], --topk N [N ...]
+                        Top k list values. Default is 1 and 3.
+  --gpu                 Perform training on gpu
+  --cpu                 Perform training on cpu
+"""
+
 import utils
 import argparse
 
@@ -60,22 +86,6 @@ def training_step(
     for k in topk_list:
         metrics[f"Train/top {k}"] = aR.eval(at=k)
     return metrics
-
-
-def calc_loss(left, right, temp, device):
-    sim1 = utils.sim_matrix(left, right)
-    sim2 = sim1.t()
-
-    loss_left2right = F.cross_entropy(
-        sim1 * temp, torch.arange(len(sim1)).long().to(device)
-    )
-    loss_right2left = F.cross_entropy(
-        sim2 * temp, torch.arange(len(sim2)).long().to(device)
-    )
-    loss = loss_left2right * 0.5 + loss_right2left * 0.5
-
-    return loss
-
 
 def validate(
     model: nn.Module,

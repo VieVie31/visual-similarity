@@ -1,3 +1,5 @@
+"""All our custom pytorch Dataset classes, the most important one is TTLDataset."""
+
 import os
 
 import torch
@@ -10,6 +12,9 @@ from torch.utils.data import Dataset
 
 
 class TTLDataset(Dataset):
+    """
+    This is our pytorch TTL dataset, it is mainly used in the extracting part.
+    """
     def __init__(self, root_dir: str, transform=None, target_transform=None):
         """
         Args:
@@ -56,6 +61,11 @@ class TTLDataset(Dataset):
         )
 
     def check_directories_and_get_images_paths(self, root_dir):
+        """
+        Ensure that the way the root_dir has two subdirs left & right that contains the same number
+        of images.
+        This will not check that each pair is named the same way. 
+        """
         assert os.path.isdir(root_dir)
 
         _, dirs, _ = next(os.walk(root_dir))
@@ -75,6 +85,11 @@ class TTLDataset(Dataset):
 
 
 class SimpleDataset(Dataset):
+    """
+    Dataset class to load images that are located in some directory.
+    The assumed structure is the following:
+        Dir/*.[img_exts]
+    """
     def __init__(self, root_dir: str, transform=None, target_transform=None):
         """
         Args:
@@ -124,7 +139,26 @@ class SimpleDataset(Dataset):
 
 
 class EmbDataset(Dataset):
+    """
+    This is was initally created to load the embeddings i.e the extracted features, to keep up with 
+    the pytorch training classical style using a DataLoader.
+    Nevertheless, we always load all the embeddings at once since they are light in memory.
+
+    [Warning]: this is still doesn't support the case of Simple dataset, it assumes that the embds
+    are serialized in a form of a dictionnary that contains the following keys:
+        ['left', 'right', 'left_name', 'right_name']
+    """
     def __init__(self, path: str, only_original=True):
+        """
+        Args:
+            path (str): the serialized file that contains the extracted embeddings.
+            only_original (bool, optional): if is true, it means that we are going to use only the
+            first half of the embeddings, and that is because of the way we constructed the TTLDataset
+            when it is augmented, the features of the original images are located at the first half
+            then followed by their augmented versions.
+            In short, if you want to load all the embds, weather it contains augmented version or not
+            use only_original=False, otherwise it will load only the first half.
+        """
         self.embds = self._load_embds(path, only_original)
         self.augmented = not only_original
         

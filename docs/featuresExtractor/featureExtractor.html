@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>positive-similarity.featuresExtractor.featureExtractor API documentation</title>
+<meta name="description" content="This is where we define our feature Extractor class, it is here where all the magic happens." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>positive-similarity.featuresExtractor.featureExtractor</code></h1>
+</header>
+<section id="section-intro">
+<p>This is where we define our feature Extractor class, it is here where all the magic happens.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;This is where we define our feature Extractor class, it is here where all the magic happens.&#34;&#34;&#34;
+
+import os
+
+import torch
+import torch.nn as nn
+import torchvision.transforms as transforms
+
+from torch.utils.data import DataLoader, ConcatDataset
+from torch.utils.hooks import RemovableHandle
+from typing import List, Dict
+from types import FunctionType
+from collections.abc import Iterable
+from tqdm import tqdm
+
+from dataset import TTLDataset, SimpleDataset
+from .processor import Processor, AdaptationProcessor
+from .utils import get_layer_index
+
+from . import transforms as default_transforms
+
+
+class FeatureExtractor:
+    &#34;&#34;&#34;
+    Extract images intermediate layer[s] output[s] using some pretrained model[s].
+    These extracted features will be then given to the processor who is responsible of doing something
+    with them.
+    &#34;&#34;&#34;
+
+    def __init__(self, processor: Processor, models_dict: Dict) -&gt; None:
+        &#34;&#34;&#34;
+        Parameters:
+        processor (Processor)      : The Processor that is going to handle the extracted features.
+
+        models_dict (str)          : dictionnary that contains the models that we are going to use
+                                     where the keys are the names of the models and the values are
+                                     a dictionnary that contains the the callable function and
+                                     the list of layers indices ( see models.py ).
+        &#34;&#34;&#34;
+        assert isinstance(processor, Processor)
+        assert isinstance(models_dict, Dict)
+
+        for model_name, model_d in models_dict.items():
+            assert isinstance(model_name, str)
+            assert isinstance(model_d, Dict)
+            assert isinstance(model_d[&#34;model&#34;], FunctionType)
+            assert isinstance(model_d[&#34;layers&#34;], Iterable)
+
+        self.processor = processor
+        self.save_path = self.processor.save_path
+        self.models_dict = models_dict
+        self.models_names = list(models_dict.keys())
+        self.hooks_dict = dict()
+
+        self.printed_dataset_info = False 
+
+    @torch.no_grad()
+    def extract_features_from_directory(
+        self, path: str, batch_size: int = 1, add_augmentation: bool = False
+    ):
+        &#34;&#34;&#34;
+        This will extract the features of the images located at path.
+
+        Will inspect the directory, if it there is no subdirectories, i.e : dir/*.[image_extensions]
+        it will create a simple dataset, otherwise it will assume that it follows the structure of
+        TTL dataset i.e:
+            .dir/
+                left/*.[image_extensions]
+                right/*.[image_extensions]
+
+        Then it will construct the dataset with the corresponding transforms and call the forward method
+        for each model.
+        The models already have a forward hook registered to them ( this is done in the constructor ),
+        and the hook implemented above will give them to the processor with the register method.
+
+        Parameters:
+        path (str)              : path of the directory that contains the RGB images.
+        batch_size (int)        : batch size that will be used in the loader.
+        add_augmentation (bool) : Add augmentation to the dataset or not ?
+        &#34;&#34;&#34;
+        assert isinstance(path, str)
+        batch_size = int(batch_size)
+        assert batch_size &gt;= 1
+        assert isinstance(add_augmentation, bool)
+
+        self.dataset_path = path
+        device = torch.device(&#34;cuda&#34; if torch.cuda.is_available() else &#34;cpu&#34;)
+
+        print(f&#34;Extracting features with {len(self.models_names)} models !&#34;)
+
+        t = tqdm(self.models_names)
+        for model in t:
+            model_name = model
+            
+            # we are going to need the original path in case we have a TTL dataset
+            self.original_save_path = self.save_path
+
+            # don&#39;t overwrite the old calculated features
+            skip = self.__skip_if_found(model_name)
+            if skip:
+                print(f&#34;[Info] Skipping {model_name}. Found old calculated embds for this model !&#34;)
+                t.update(1)
+                continue
+
+            t.set_description(f&#34;Models Loop: Loading {model_name} model...&#34;)
+            t.refresh()
+
+            # load model to gpu if it&#39;s available for faster computations
+            model = self.__build_model(model)
+            model = model.to(device)
+
+            t.set_description(
+                f&#34;Models Loop: {model_name} is loaded. Extracting features...&#34;
+            )
+            t.refresh()
+
+            # pass the imgs into the model so we can capture the intermediate layers outputs.
+            # self.corresponding_labels will be used in get_activation method below
+            # to know the label for each img in the batch
+
+            # construct the dataset and the loader
+            dataset = self.__construct_dataset(path, model_name, add_augmentation)
+            loader = DataLoader(dataset, batch_size=batch_size)
+
+            
+
+            # check before extracting features
+            if isinstance(self.processor, AdaptationProcessor):
+                if len(dataset) % loader.batch_size == 1:
+                    raise ValueError(
+                        f&#34;[len(dataset): {len(dataset)} % Batch size: {loader.batch_size} = 1].\n&#34;
+                        &#34;This batch size is inapproriate for this processor. &#34;
+                        &#34;It wi&#39;ll fail when trying to normalize the batch that contains only one tensor !&#34;
+                    )
+            # TODO: add checking for all processors that use PCA before extracting the features
+
+            # now after the model is loaded, we&#39;ll test if we can use the provided batch size
+            # we&#39;ll devide it by 2 until it fits the memory
+            loader = self.__adapt_batch_size(model, loader, device)
+
+            # we have determined a good batch size, let&#39;s register our hooks
+            self.__register_hooks(model, model_name)
+
+            is_ttl = dataset.__class__.__name__ == &#34;TTLDataset&#34;
+            
+            print(&#34;[INFO] Dataset is loaded.&#34;, flush=True)
+
+            if is_ttl:
+                with tqdm(total=len(loader), desc=&#34;Batch loop&#34;) as progress_bar:
+                    for i, data in enumerate(loader, 0):
+                        imgs, self.corresponding_labels = data
+
+                        # move the left imgs to gpu if available, treat them, and then delete them
+                        imgs[&#34;left&#34;] = imgs[&#34;left&#34;].to(device)
+                        self.save_path = self.original_save_path / &#34;left&#34;
+                        self.processor.set_path(self.save_path)
+                        model(imgs[&#34;left&#34;])
+                        del imgs[&#34;left&#34;]
+
+                        # right imgs turn...
+                        imgs[&#34;right&#34;] = imgs[&#34;right&#34;].to(device)
+                        self.save_path = self.original_save_path / &#34;right&#34;
+                        self.processor.set_path(self.save_path)
+                        model(imgs[&#34;right&#34;])
+                        del imgs[&#34;right&#34;]
+
+                        progress_bar.update(1)
+
+                self.save_path = self.original_save_path
+
+            else:
+                for i, data in tqdm(enumerate(loader, 0)):
+                    imgs, self.corresponding_labels = data
+                    imgs.to(device)  # move the imgs to gpu if it&#39;s available
+                    model(imgs)
+                    del imgs
+
+            # We are done with this model, let&#39;s free the memory
+            del model
+
+            self.processor.set_path(self.original_save_path)
+            self.processor.execute()
+
+    def __adapt_batch_size(
+        self, model: nn.Module, loader: DataLoader, device
+    ) -&gt; DataLoader:
+        &#34;&#34;&#34;
+        Adapt the batch size so that both the model and the batch can fit in memory.
+        &#34;&#34;&#34;
+
+        # changed this so it can work with ConcatDataset
+        is_ttl = loader.dataset.__class__.__name__ == &#34;TTLDataset&#34;
+        good_batch_size = False
+        batch_size = loader.batch_size
+        new_loader = DataLoader(loader.dataset, batch_size=loader.batch_size)
+
+        while not good_batch_size:
+            try:
+                imgs, labels = next(iter(new_loader))
+                imgs = imgs[&#34;left&#34;].to(device) if is_ttl else imgs.to(device)
+                model(imgs)
+
+                return new_loader
+            except RuntimeError as e:
+                if &#34;out of memory&#34; in str(e):
+                    batch_size //= 2
+                    print(
+                        f&#34;\n[+] WARNING: ran out of memory, retrying with batch size = {batch_size}&#34;
+                    )
+                    torch.cuda.empty_cache()
+
+                    new_loader = DataLoader(loader.dataset, batch_size=batch_size)
+                else:
+                    raise e
+
+    def __build_model(self, model_name: str):
+        &#34;&#34;&#34;
+        This method serves as constructor for the model.
+        What it does is:
+            Get the lambda expression in self.models_dict[model_name].
+            Construct the pytorch model.
+            return the model
+        &#34;&#34;&#34;
+        assert model_name in self.models_names
+
+        m_dict = self.models_dict[model_name]
+        # constructing the model
+        model = m_dict[&#34;model&#34;].__call__()
+
+        return model
+
+    def __construct_dataset(
+        self, path: str, model_name: str, add_augmentation: bool = False
+    ):
+        &#34;&#34;&#34;
+        This method is used build the dataset and apply the corresponding transforms located at models
+        dictionnary.
+        &#34;&#34;&#34;
+        assert model_name in self.models_names
+        assert isinstance(path, str)
+
+        # get the corresponding transforms
+        model_transforms = self.__get_transforms(model_name)
+
+        # build the dataset
+        _, dirs, _ = next(os.walk(path))
+
+        if len(dirs) == 0:
+            dataset_original = SimpleDataset(path, transform=model_transforms[&#34;data&#34;])
+        else:
+            if not self.printed_dataset_info:
+                print(
+                    &#34;The path you gave contains subdirectories, will assume it&#39;s a TTL like dataset.&#34;
+                )
+                self.printed_dataset_info = True
+
+            dataset_original = TTLDataset(path, transform=model_transforms[&#34;data&#34;])
+
+        if add_augmentation:
+            Corresponding_dataset_constructor = (
+                SimpleDataset if len(dirs) == 0 else TTLDataset
+            )
+            dataset_aug = Corresponding_dataset_constructor(
+                path,
+                transform=model_transforms[&#34;data_aug&#34;],
+                target_transform=model_transforms[&#34;target_aug&#34;],
+            )
+
+            dataset = ConcatDataset([dataset_original, dataset_aug])
+
+            if isinstance(dataset_original, TTLDataset):
+                dataset.__class__.__name__ = &#34;TTLDataset&#34;
+
+            return dataset
+
+        return dataset_original
+
+    def __get_transforms(self, model_name: str) -&gt; Dict:
+        &#34;&#34;&#34;
+        Returns a dictionnary that contains the corresponding transforms of the model that will be applied
+        to the dataset.
+        &#34;&#34;&#34;
+        assert model_name in self.models_names
+        m_dict = self.models_dict[model_name]
+
+        data_transform = (
+            m_dict[&#34;transform&#34;]
+            if &#34;transform&#34; in m_dict
+            else default_transforms.pre_processing_transforms
+        )
+
+        &#34;&#34;&#34;
+        still need to settle on this one, do we assume that aug_transform is a complete one or just
+        some transforms after the pre_processing done in m_dict[&#34;transform&#34;] ?
+        For the time being we&#39;ll assume that it is done with the second approach as it is more convenient
+        to our case.
+        &#34;&#34;&#34;
+        data_aug_transform = (
+            m_dict[&#34;aug_transform&#34;]
+            if &#34;aug_transform&#34; in m_dict
+            else default_transforms.data_aug_transform
+        )
+        data_aug_transform = transforms.Compose(
+            [data_transform, default_transforms.data_aug_transform]
+        )
+
+        target_aug_transform = (
+            m_dict[&#34;target_transform&#34;]
+            if &#34;target_transform&#34; in m_dict
+            else default_transforms.target_aug_transform
+        )
+
+        return {
+            &#34;data&#34;: data_transform,
+            &#34;data_aug&#34;: data_aug_transform,
+            &#34;target_aug&#34;: target_aug_transform,
+        }
+
+    def __register_hooks(
+        self, model: nn.Module, model_name: str
+    ) -&gt; List[RemovableHandle]:
+        &#34;&#34;&#34;
+        This method will register the forward hooks on all the specified modules (layers)
+        and will return all the removable handles.
+        We&#39;ll make use of these handles to test the batch size.
+        &#34;&#34;&#34;
+        assert isinstance(model, nn.Module)
+        assert isinstance(model_name, str)
+
+        handles = []
+        m_dict = self.models_dict[model_name]
+
+        # constructing the layer indices
+        layers_indices = [
+            layer if isinstance(layer, int) else get_layer_index(model, layer)
+            for layer in m_dict[&#34;layers&#34;]
+        ]
+
+        for layer_index in layers_indices:
+            layer_name, module = list(model.named_modules())[layer_index]
+            handles.append(
+                module.register_forward_hook(
+                    self.__get_activation(model_name, layer_name, self.processor)
+                )
+            )
+
+        return handles
+
+    @torch.no_grad()
+    def __get_activation(self, model_name: str, layer_name: str, processor: Processor):
+        &#34;&#34;&#34;
+        A sort of a wrapper for the hook function in order to use the provided arguments to save
+        the features into files appropriately.
+
+        Returns:
+            the hook function that will be used in register_forward_hook method.
+        &#34;&#34;&#34;
+
+        def hook(model, inp, output) -&gt; None:
+            &#34;&#34;&#34;
+            Hook function, this is where we are placing our processor to handle the extracted features
+            &#34;&#34;&#34;
+            # Processing is generally done on CPU, so let&#39;s move this tensor to cpu to save GPU memory
+            processor.register(
+                model_name, layer_name, output.detach().cpu(), self.corresponding_labels
+            )
+
+        return hook
+
+    def __skip_if_found(self, model_name: str) -&gt; bool:
+        &#34;&#34;&#34;
+        This will see if we already used this model to extract the features or not.
+        If there are files inside the corresponding directory, it will assume that we already did
+        and will return True.
+        &#34;&#34;&#34;
+        try:
+            _, _, files = next(
+                os.walk(self.original_save_path / self.processor.name / str(model_name))
+            )
+
+            if len(files) &gt; 0:
+                return True
+        except StopIteration:
+            return False
+
+        return False</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="positive-similarity.featuresExtractor.featureExtractor.FeatureExtractor"><code class="flex name class">
+<span>class <span class="ident">FeatureExtractor</span></span>
+<span>(</span><span>processor: positive-similarity.featuresExtractor.processor.Processor, models_dict: Dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Extract images intermediate layer[s] output[s] using some pretrained model[s].
+These extracted features will be then given to the processor who is responsible of doing something
+with them.</p>
+<p>Parameters:
+processor (Processor)
+: The Processor that is going to handle the extracted features.</p>
+<p>models_dict (str)
+: dictionnary that contains the models that we are going to use
+where the keys are the names of the models and the values are
+a dictionnary that contains the the callable function and
+the list of layers indices ( see models.py ).</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FeatureExtractor:
+    &#34;&#34;&#34;
+    Extract images intermediate layer[s] output[s] using some pretrained model[s].
+    These extracted features will be then given to the processor who is responsible of doing something
+    with them.
+    &#34;&#34;&#34;
+
+    def __init__(self, processor: Processor, models_dict: Dict) -&gt; None:
+        &#34;&#34;&#34;
+        Parameters:
+        processor (Processor)      : The Processor that is going to handle the extracted features.
+
+        models_dict (str)          : dictionnary that contains the models that we are going to use
+                                     where the keys are the names of the models and the values are
+                                     a dictionnary that contains the the callable function and
+                                     the list of layers indices ( see models.py ).
+        &#34;&#34;&#34;
+        assert isinstance(processor, Processor)
+        assert isinstance(models_dict, Dict)
+
+        for model_name, model_d in models_dict.items():
+            assert isinstance(model_name, str)
+            assert isinstance(model_d, Dict)
+            assert isinstance(model_d[&#34;model&#34;], FunctionType)
+            assert isinstance(model_d[&#34;layers&#34;], Iterable)
+
+        self.processor = processor
+        self.save_path = self.processor.save_path
+        self.models_dict = models_dict
+        self.models_names = list(models_dict.keys())
+        self.hooks_dict = dict()
+
+        self.printed_dataset_info = False 
+
+    @torch.no_grad()
+    def extract_features_from_directory(
+        self, path: str, batch_size: int = 1, add_augmentation: bool = False
+    ):
+        &#34;&#34;&#34;
+        This will extract the features of the images located at path.
+
+        Will inspect the directory, if it there is no subdirectories, i.e : dir/*.[image_extensions]
+        it will create a simple dataset, otherwise it will assume that it follows the structure of
+        TTL dataset i.e:
+            .dir/
+                left/*.[image_extensions]
+                right/*.[image_extensions]
+
+        Then it will construct the dataset with the corresponding transforms and call the forward method
+        for each model.
+        The models already have a forward hook registered to them ( this is done in the constructor ),
+        and the hook implemented above will give them to the processor with the register method.
+
+        Parameters:
+        path (str)              : path of the directory that contains the RGB images.
+        batch_size (int)        : batch size that will be used in the loader.
+        add_augmentation (bool) : Add augmentation to the dataset or not ?
+        &#34;&#34;&#34;
+        assert isinstance(path, str)
+        batch_size = int(batch_size)
+        assert batch_size &gt;= 1
+        assert isinstance(add_augmentation, bool)
+
+        self.dataset_path = path
+        device = torch.device(&#34;cuda&#34; if torch.cuda.is_available() else &#34;cpu&#34;)
+
+        print(f&#34;Extracting features with {len(self.models_names)} models !&#34;)
+
+        t = tqdm(self.models_names)
+        for model in t:
+            model_name = model
+            
+            # we are going to need the original path in case we have a TTL dataset
+            self.original_save_path = self.save_path
+
+            # don&#39;t overwrite the old calculated features
+            skip = self.__skip_if_found(model_name)
+            if skip:
+                print(f&#34;[Info] Skipping {model_name}. Found old calculated embds for this model !&#34;)
+                t.update(1)
+                continue
+
+            t.set_description(f&#34;Models Loop: Loading {model_name} model...&#34;)
+            t.refresh()
+
+            # load model to gpu if it&#39;s available for faster computations
+            model = self.__build_model(model)
+            model = model.to(device)
+
+            t.set_description(
+                f&#34;Models Loop: {model_name} is loaded. Extracting features...&#34;
+            )
+            t.refresh()
+
+            # pass the imgs into the model so we can capture the intermediate layers outputs.
+            # self.corresponding_labels will be used in get_activation method below
+            # to know the label for each img in the batch
+
+            # construct the dataset and the loader
+            dataset = self.__construct_dataset(path, model_name, add_augmentation)
+            loader = DataLoader(dataset, batch_size=batch_size)
+
+            
+
+            # check before extracting features
+            if isinstance(self.processor, AdaptationProcessor):
+                if len(dataset) % loader.batch_size == 1:
+                    raise ValueError(
+                        f&#34;[len(dataset): {len(dataset)} % Batch size: {loader.batch_size} = 1].\n&#34;
+                        &#34;This batch size is inapproriate for this processor. &#34;
+                        &#34;It wi&#39;ll fail when trying to normalize the batch that contains only one tensor !&#34;
+                    )
+            # TODO: add checking for all processors that use PCA before extracting the features
+
+            # now after the model is loaded, we&#39;ll test if we can use the provided batch size
+            # we&#39;ll devide it by 2 until it fits the memory
+            loader = self.__adapt_batch_size(model, loader, device)
+
+            # we have determined a good batch size, let&#39;s register our hooks
+            self.__register_hooks(model, model_name)
+
+            is_ttl = dataset.__class__.__name__ == &#34;TTLDataset&#34;
+            
+            print(&#34;[INFO] Dataset is loaded.&#34;, flush=True)
+
+            if is_ttl:
+                with tqdm(total=len(loader), desc=&#34;Batch loop&#34;) as progress_bar:
+                    for i, data in enumerate(loader, 0):
+                        imgs, self.corresponding_labels = data
+
+                        # move the left imgs to gpu if available, treat them, and then delete them
+                        imgs[&#34;left&#34;] = imgs[&#34;left&#34;].to(device)
+                        self.save_path = self.original_save_path / &#34;left&#34;
+                        self.processor.set_path(self.save_path)
+                        model(imgs[&#34;left&#34;])
+                        del imgs[&#34;left&#34;]
+
+                        # right imgs turn...
+                        imgs[&#34;right&#34;] = imgs[&#34;right&#34;].to(device)
+                        self.save_path = self.original_save_path / &#34;right&#34;
+                        self.processor.set_path(self.save_path)
+                        model(imgs[&#34;right&#34;])
+                        del imgs[&#34;right&#34;]
+
+                        progress_bar.update(1)
+
+                self.save_path = self.original_save_path
+
+            else:
+                for i, data in tqdm(enumerate(loader, 0)):
+                    imgs, self.corresponding_labels = data
+                    imgs.to(device)  # move the imgs to gpu if it&#39;s available
+                    model(imgs)
+                    del imgs
+
+            # We are done with this model, let&#39;s free the memory
+            del model
+
+            self.processor.set_path(self.original_save_path)
+            self.processor.execute()
+
+    def __adapt_batch_size(
+        self, model: nn.Module, loader: DataLoader, device
+    ) -&gt; DataLoader:
+        &#34;&#34;&#34;
+        Adapt the batch size so that both the model and the batch can fit in memory.
+        &#34;&#34;&#34;
+
+        # changed this so it can work with ConcatDataset
+        is_ttl = loader.dataset.__class__.__name__ == &#34;TTLDataset&#34;
+        good_batch_size = False
+        batch_size = loader.batch_size
+        new_loader = DataLoader(loader.dataset, batch_size=loader.batch_size)
+
+        while not good_batch_size:
+            try:
+                imgs, labels = next(iter(new_loader))
+                imgs = imgs[&#34;left&#34;].to(device) if is_ttl else imgs.to(device)
+                model(imgs)
+
+                return new_loader
+            except RuntimeError as e:
+                if &#34;out of memory&#34; in str(e):
+                    batch_size //= 2
+                    print(
+                        f&#34;\n[+] WARNING: ran out of memory, retrying with batch size = {batch_size}&#34;
+                    )
+                    torch.cuda.empty_cache()
+
+                    new_loader = DataLoader(loader.dataset, batch_size=batch_size)
+                else:
+                    raise e
+
+    def __build_model(self, model_name: str):
+        &#34;&#34;&#34;
+        This method serves as constructor for the model.
+        What it does is:
+            Get the lambda expression in self.models_dict[model_name].
+            Construct the pytorch model.
+            return the model
+        &#34;&#34;&#34;
+        assert model_name in self.models_names
+
+        m_dict = self.models_dict[model_name]
+        # constructing the model
+        model = m_dict[&#34;model&#34;].__call__()
+
+        return model
+
+    def __construct_dataset(
+        self, path: str, model_name: str, add_augmentation: bool = False
+    ):
+        &#34;&#34;&#34;
+        This method is used build the dataset and apply the corresponding transforms located at models
+        dictionnary.
+        &#34;&#34;&#34;
+        assert model_name in self.models_names
+        assert isinstance(path, str)
+
+        # get the corresponding transforms
+        model_transforms = self.__get_transforms(model_name)
+
+        # build the dataset
+        _, dirs, _ = next(os.walk(path))
+
+        if len(dirs) == 0:
+            dataset_original = SimpleDataset(path, transform=model_transforms[&#34;data&#34;])
+        else:
+            if not self.printed_dataset_info:
+                print(
+                    &#34;The path you gave contains subdirectories, will assume it&#39;s a TTL like dataset.&#34;
+                )
+                self.printed_dataset_info = True
+
+            dataset_original = TTLDataset(path, transform=model_transforms[&#34;data&#34;])
+
+        if add_augmentation:
+            Corresponding_dataset_constructor = (
+                SimpleDataset if len(dirs) == 0 else TTLDataset
+            )
+            dataset_aug = Corresponding_dataset_constructor(
+                path,
+                transform=model_transforms[&#34;data_aug&#34;],
+                target_transform=model_transforms[&#34;target_aug&#34;],
+            )
+
+            dataset = ConcatDataset([dataset_original, dataset_aug])
+
+            if isinstance(dataset_original, TTLDataset):
+                dataset.__class__.__name__ = &#34;TTLDataset&#34;
+
+            return dataset
+
+        return dataset_original
+
+    def __get_transforms(self, model_name: str) -&gt; Dict:
+        &#34;&#34;&#34;
+        Returns a dictionnary that contains the corresponding transforms of the model that will be applied
+        to the dataset.
+        &#34;&#34;&#34;
+        assert model_name in self.models_names
+        m_dict = self.models_dict[model_name]
+
+        data_transform = (
+            m_dict[&#34;transform&#34;]
+            if &#34;transform&#34; in m_dict
+            else default_transforms.pre_processing_transforms
+        )
+
+        &#34;&#34;&#34;
+        still need to settle on this one, do we assume that aug_transform is a complete one or just
+        some transforms after the pre_processing done in m_dict[&#34;transform&#34;] ?
+        For the time being we&#39;ll assume that it is done with the second approach as it is more convenient
+        to our case.
+        &#34;&#34;&#34;
+        data_aug_transform = (
+            m_dict[&#34;aug_transform&#34;]
+            if &#34;aug_transform&#34; in m_dict
+            else default_transforms.data_aug_transform
+        )
+        data_aug_transform = transforms.Compose(
+            [data_transform, default_transforms.data_aug_transform]
+        )
+
+        target_aug_transform = (
+            m_dict[&#34;target_transform&#34;]
+            if &#34;target_transform&#34; in m_dict
+            else default_transforms.target_aug_transform
+        )
+
+        return {
+            &#34;data&#34;: data_transform,
+            &#34;data_aug&#34;: data_aug_transform,
+            &#34;target_aug&#34;: target_aug_transform,
+        }
+
+    def __register_hooks(
+        self, model: nn.Module, model_name: str
+    ) -&gt; List[RemovableHandle]:
+        &#34;&#34;&#34;
+        This method will register the forward hooks on all the specified modules (layers)
+        and will return all the removable handles.
+        We&#39;ll make use of these handles to test the batch size.
+        &#34;&#34;&#34;
+        assert isinstance(model, nn.Module)
+        assert isinstance(model_name, str)
+
+        handles = []
+        m_dict = self.models_dict[model_name]
+
+        # constructing the layer indices
+        layers_indices = [
+            layer if isinstance(layer, int) else get_layer_index(model, layer)
+            for layer in m_dict[&#34;layers&#34;]
+        ]
+
+        for layer_index in layers_indices:
+            layer_name, module = list(model.named_modules())[layer_index]
+            handles.append(
+                module.register_forward_hook(
+                    self.__get_activation(model_name, layer_name, self.processor)
+                )
+            )
+
+        return handles
+
+    @torch.no_grad()
+    def __get_activation(self, model_name: str, layer_name: str, processor: Processor):
+        &#34;&#34;&#34;
+        A sort of a wrapper for the hook function in order to use the provided arguments to save
+        the features into files appropriately.
+
+        Returns:
+            the hook function that will be used in register_forward_hook method.
+        &#34;&#34;&#34;
+
+        def hook(model, inp, output) -&gt; None:
+            &#34;&#34;&#34;
+            Hook function, this is where we are placing our processor to handle the extracted features
+            &#34;&#34;&#34;
+            # Processing is generally done on CPU, so let&#39;s move this tensor to cpu to save GPU memory
+            processor.register(
+                model_name, layer_name, output.detach().cpu(), self.corresponding_labels
+            )
+
+        return hook
+
+    def __skip_if_found(self, model_name: str) -&gt; bool:
+        &#34;&#34;&#34;
+        This will see if we already used this model to extract the features or not.
+        If there are files inside the corresponding directory, it will assume that we already did
+        and will return True.
+        &#34;&#34;&#34;
+        try:
+            _, _, files = next(
+                os.walk(self.original_save_path / self.processor.name / str(model_name))
+            )
+
+            if len(files) &gt; 0:
+                return True
+        except StopIteration:
+            return False
+
+        return False</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="positive-similarity.featuresExtractor.featureExtractor.FeatureExtractor.extract_features_from_directory"><code class="name flex">
+<span>def <span class="ident">extract_features_from_directory</span></span>(<span>self, path: str, batch_size: int = 1, add_augmentation: bool = False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This will extract the features of the images located at path.</p>
+<p>Will inspect the directory, if it there is no subdirectories, i.e : dir/<em>.[image_extensions]
+it will create a simple dataset, otherwise it will assume that it follows the structure of
+TTL dataset i.e:
+.dir/
+left/</em>.[image_extensions]
+right/*.[image_extensions]</p>
+<p>Then it will construct the dataset with the corresponding transforms and call the forward method
+for each model.
+The models already have a forward hook registered to them ( this is done in the constructor ),
+and the hook implemented above will give them to the processor with the register method.</p>
+<p>Parameters:
+path (str)
+: path of the directory that contains the RGB images.
+batch_size (int)
+: batch size that will be used in the loader.
+add_augmentation (bool) : Add augmentation to the dataset or not ?</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@torch.no_grad()
+def extract_features_from_directory(
+    self, path: str, batch_size: int = 1, add_augmentation: bool = False
+):
+    &#34;&#34;&#34;
+    This will extract the features of the images located at path.
+
+    Will inspect the directory, if it there is no subdirectories, i.e : dir/*.[image_extensions]
+    it will create a simple dataset, otherwise it will assume that it follows the structure of
+    TTL dataset i.e:
+        .dir/
+            left/*.[image_extensions]
+            right/*.[image_extensions]
+
+    Then it will construct the dataset with the corresponding transforms and call the forward method
+    for each model.
+    The models already have a forward hook registered to them ( this is done in the constructor ),
+    and the hook implemented above will give them to the processor with the register method.
+
+    Parameters:
+    path (str)              : path of the directory that contains the RGB images.
+    batch_size (int)        : batch size that will be used in the loader.
+    add_augmentation (bool) : Add augmentation to the dataset or not ?
+    &#34;&#34;&#34;
+    assert isinstance(path, str)
+    batch_size = int(batch_size)
+    assert batch_size &gt;= 1
+    assert isinstance(add_augmentation, bool)
+
+    self.dataset_path = path
+    device = torch.device(&#34;cuda&#34; if torch.cuda.is_available() else &#34;cpu&#34;)
+
+    print(f&#34;Extracting features with {len(self.models_names)} models !&#34;)
+
+    t = tqdm(self.models_names)
+    for model in t:
+        model_name = model
+        
+        # we are going to need the original path in case we have a TTL dataset
+        self.original_save_path = self.save_path
+
+        # don&#39;t overwrite the old calculated features
+        skip = self.__skip_if_found(model_name)
+        if skip:
+            print(f&#34;[Info] Skipping {model_name}. Found old calculated embds for this model !&#34;)
+            t.update(1)
+            continue
+
+        t.set_description(f&#34;Models Loop: Loading {model_name} model...&#34;)
+        t.refresh()
+
+        # load model to gpu if it&#39;s available for faster computations
+        model = self.__build_model(model)
+        model = model.to(device)
+
+        t.set_description(
+            f&#34;Models Loop: {model_name} is loaded. Extracting features...&#34;
+        )
+        t.refresh()
+
+        # pass the imgs into the model so we can capture the intermediate layers outputs.
+        # self.corresponding_labels will be used in get_activation method below
+        # to know the label for each img in the batch
+
+        # construct the dataset and the loader
+        dataset = self.__construct_dataset(path, model_name, add_augmentation)
+        loader = DataLoader(dataset, batch_size=batch_size)
+
+        
+
+        # check before extracting features
+        if isinstance(self.processor, AdaptationProcessor):
+            if len(dataset) % loader.batch_size == 1:
+                raise ValueError(
+                    f&#34;[len(dataset): {len(dataset)} % Batch size: {loader.batch_size} = 1].\n&#34;
+                    &#34;This batch size is inapproriate for this processor. &#34;
+                    &#34;It wi&#39;ll fail when trying to normalize the batch that contains only one tensor !&#34;
+                )
+        # TODO: add checking for all processors that use PCA before extracting the features
+
+        # now after the model is loaded, we&#39;ll test if we can use the provided batch size
+        # we&#39;ll devide it by 2 until it fits the memory
+        loader = self.__adapt_batch_size(model, loader, device)
+
+        # we have determined a good batch size, let&#39;s register our hooks
+        self.__register_hooks(model, model_name)
+
+        is_ttl = dataset.__class__.__name__ == &#34;TTLDataset&#34;
+        
+        print(&#34;[INFO] Dataset is loaded.&#34;, flush=True)
+
+        if is_ttl:
+            with tqdm(total=len(loader), desc=&#34;Batch loop&#34;) as progress_bar:
+                for i, data in enumerate(loader, 0):
+                    imgs, self.corresponding_labels = data
+
+                    # move the left imgs to gpu if available, treat them, and then delete them
+                    imgs[&#34;left&#34;] = imgs[&#34;left&#34;].to(device)
+                    self.save_path = self.original_save_path / &#34;left&#34;
+                    self.processor.set_path(self.save_path)
+                    model(imgs[&#34;left&#34;])
+                    del imgs[&#34;left&#34;]
+
+                    # right imgs turn...
+                    imgs[&#34;right&#34;] = imgs[&#34;right&#34;].to(device)
+                    self.save_path = self.original_save_path / &#34;right&#34;
+                    self.processor.set_path(self.save_path)
+                    model(imgs[&#34;right&#34;])
+                    del imgs[&#34;right&#34;]
+
+                    progress_bar.update(1)
+
+            self.save_path = self.original_save_path
+
+        else:
+            for i, data in tqdm(enumerate(loader, 0)):
+                imgs, self.corresponding_labels = data
+                imgs.to(device)  # move the imgs to gpu if it&#39;s available
+                model(imgs)
+                del imgs
+
+        # We are done with this model, let&#39;s free the memory
+        del model
+
+        self.processor.set_path(self.original_save_path)
+        self.processor.execute()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="positive-similarity.featuresExtractor" href="index.html">positive-similarity.featuresExtractor</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="positive-similarity.featuresExtractor.featureExtractor.FeatureExtractor" href="#positive-similarity.featuresExtractor.featureExtractor.FeatureExtractor">FeatureExtractor</a></code></h4>
+<ul class="">
+<li><code><a title="positive-similarity.featuresExtractor.featureExtractor.FeatureExtractor.extract_features_from_directory" href="#positive-similarity.featuresExtractor.featureExtractor.FeatureExtractor.extract_features_from_directory">extract_features_from_directory</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

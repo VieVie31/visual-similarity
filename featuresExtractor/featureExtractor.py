@@ -1,3 +1,5 @@
+"""This is where we define our feature Extractor class, it is here where all the magic happens."""
+
 import os
 
 import torch
@@ -21,7 +23,8 @@ from . import transforms as default_transforms
 class FeatureExtractor:
     """
     Extract images intermediate layer[s] output[s] using some pretrained model[s].
-    These extracted features will be then given to the processor who is responsible of doing something with them.
+    These extracted features will be then given to the processor who is responsible of doing something
+    with them.
     """
 
     def __init__(self, processor: Processor, models_dict: Dict) -> None:
@@ -181,6 +184,9 @@ class FeatureExtractor:
     def __adapt_batch_size(
         self, model: nn.Module, loader: DataLoader, device
     ) -> DataLoader:
+        """
+        Adapt the batch size so that both the model and the batch can fit in memory.
+        """
 
         # changed this so it can work with ConcatDataset
         is_ttl = loader.dataset.__class__.__name__ == "TTLDataset"

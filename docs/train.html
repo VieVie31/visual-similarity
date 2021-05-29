@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>positive-similarity.train API documentation</title>
+<meta name="description" content="The script to use when you want to train some adaptation module on the extracted features (embeddings) …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>positive-similarity.train</code></h1>
+</header>
+<section id="section-intro">
+<p>The script to use when you want to train some adaptation module on the extracted features (embeddings).</p>
+<p>usage: train.py [-h] -d DIR -s DIR [&ndash;model {original,peterson,dummy}] [-e N] [-r N] [-t N] [&ndash;test-split N]
+[-k N [N &hellip;]] [&ndash;gpu | &ndash;cpu]</p>
+<p>Training an adaptation model</p>
+<p>optional arguments:
+-h, &ndash;help
+show this help message and exit
+-d DIR, &ndash;data DIR
+Path of the extracted embeddings
+-s DIR, &ndash;save-to DIR
+Path to which we are going to save the calculated metrics (tensorboard)
+&ndash;model {original,peterson,dummy}
+Which adaptation model to use ?. Default is original.
+-e N, &ndash;epochs N
+Number of epochs. Default is 150.
+-r N, &ndash;runs N
+Number of runs. Default is 1.
+-t N, &ndash;temperature N
+Temperature value. Default is 1.
+&ndash;test-split N
+Splitting percentage for the validation set. Default is 0.25.
+-k N [N &hellip;], &ndash;topk N [N &hellip;]
+Top k list values. Default is 1 and 3.
+&ndash;gpu
+Perform training on gpu
+&ndash;cpu
+Perform training on cpu</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;
+The script to use when you want to train some adaptation module on the extracted features (embeddings).
+
+usage: train.py [-h] -d DIR -s DIR [--model {original,peterson,dummy}] [-e N] [-r N] [-t N] [--test-split N]
+                [-k N [N ...]] [--gpu | --cpu]
+
+Training an adaptation model
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d DIR, --data DIR    Path of the extracted embeddings
+  -s DIR, --save-to DIR
+                        Path to which we are going to save the calculated metrics (tensorboard)
+  --model {original,peterson,dummy}
+                        Which adaptation model to use ?. Default is original.
+  -e N, --epochs N      Number of epochs. Default is 150.
+  -r N, --runs N        Number of runs. Default is 1.
+  -t N, --temperature N
+                        Temperature value. Default is 1.
+  --test-split N        Splitting percentage for the validation set. Default is 0.25.
+  -k N [N ...], --topk N [N ...]
+                        Top k list values. Default is 1 and 3.
+  --gpu                 Perform training on gpu
+  --cpu                 Perform training on cpu
+&#34;&#34;&#34;
+
+import utils
+import argparse
+
+import torch
+import torch.optim as optim
+import numpy as np
+import torch.nn as nn
+from adaptation import *
+from dataset import EmbDataset
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+
+from pathlib import Path
+from tqdm.auto import trange
+from types import FunctionType
+from typing import Dict, Iterable, List, Tuple
+
+
+def training_step(
+    model: nn.Module,
+    loss_func: FunctionType,
+    optimizer: optim.Optimizer,
+    train_sets: Iterable[Dict],
+    temperature: int,
+    topk_list: List[int],
+    device,
+):
+    &#34;&#34;&#34;
+    Training the model for one epoch.
+    Generally it will take two dicts:
+        - the first one is the extracted embds of the original dataset
+        - the second one is augmented version of these embds
+    &#34;&#34;&#34;
+    model.train()
+
+    total_loss = 0
+
+    for training_set in train_sets:
+        left, right = training_set[&#34;left&#34;], training_set[&#34;right&#34;]
+
+        out_left, out_right = model(left), model(right)
+
+        loss = loss_func(out_left, out_right, temperature, device)
+
+        total_loss += loss
+
+    total_loss /= len(train_sets)
+
+    # debate: include this in the loop above or not ?
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
+
+    metrics = {&#34;Train/Loss&#34;: total_loss.item()}
+
+    aR = utils.AsymmetricRecall(
+        out_left.clone().detach().cpu(), out_right.clone().detach().cpu()
+    )
+
+    for k in topk_list:
+        metrics[f&#34;Train/top {k}&#34;] = aR.eval(at=k)
+    return metrics
+
+def validate(
+    model: nn.Module,
+    loss_func: FunctionType,
+    valid_set: Dict,
+    temperature: int,
+    topk_list: List[int],
+    device,
+):
+    &#34;&#34;&#34;
+    Validating the model.
+    &#34;&#34;&#34;
+    model.eval()
+
+    with torch.no_grad():
+        left, right = valid_set[&#34;left&#34;], valid_set[&#34;right&#34;]
+        out_left, out_right = model(left), model(right)
+
+        test_loss = loss_func(out_left, out_right, temperature, device)
+
+        metrics = {&#34;Test/Loss&#34;: test_loss.item()}
+
+        aR = utils.AsymmetricRecall(out_left.detach().cpu(), out_right.detach().cpu())
+
+        for k in topk_list:
+            metrics[f&#34;Test/top {k}&#34;] = aR.eval(at=k)
+
+        return metrics
+
+
+def train(
+    model: nn.Module,
+    loss_func: FunctionType,
+    train_set: Iterable[Dict],
+    valid_set: Dict,
+    num_epochs: int,
+    save_to: str,
+    temperature: int,
+    topk_list: Iterable[int],
+    device,
+) -&gt; Dict:
+    &#34;&#34;&#34;
+    This will train the model with the given optimizer for {num_epochs} epochs.
+    And it will save the metrics defined in training_step and validate in the given path {save_to}.
+    &#34;&#34;&#34;
+    for k in topk_list:
+        assert k &gt; 0
+
+    writer = SummaryWriter(save_to)
+    metrics_per_run = {&#34;train&#34;: dict(), &#34;test&#34;: dict()}
+
+    for epoch in trange(1, num_epochs + 1):
+        info = training_step(
+            model, loss_func, optimizer, train_set, temperature, topk_list, device
+        )
+        for metric, val in info.items():
+            if not (metric in metrics_per_run[&#34;train&#34;]):
+                metrics_per_run[&#34;train&#34;][metric] = []
+            metrics_per_run[&#34;train&#34;][metric].append(val)
+
+            writer.add_scalar(metric, val, epoch)
+            writer.flush()
+
+        info = validate(model, loss_func, valid_set, temperature, topk_list, device)
+        for metric, val in info.items():
+            if not (metric in metrics_per_run[&#34;test&#34;]):
+                metrics_per_run[&#34;test&#34;][metric] = []
+            metrics_per_run[&#34;test&#34;][metric].append(val)
+
+            writer.add_scalar(metric, val, epoch)
+            writer.flush()
+
+    np.save(run_path / &#34;data&#34;, metrics_per_run)
+
+    return metrics_per_run
+
+
+parser = argparse.ArgumentParser(description=&#34;Training an adaptation model&#34;)
+parser.add_argument(
+    &#34;-d&#34;,
+    &#34;--data&#34;,
+    required=True,
+    type=str,
+    metavar=&#34;DIR&#34;,
+    help=&#34;Path of the extracted embeddings&#34;,
+)
+parser.add_argument(
+    &#34;-s&#34;,
+    &#34;--save-to&#34;,
+    required=True,
+    type=str,
+    metavar=&#34;DIR&#34;,
+    help=&#34;Path to which we are going to save the calculated metrics (tensorboard)&#34;,
+)
+parser.add_argument(
+    &#34;--model&#34;,
+    type=str,
+    default=&#34;original&#34;,
+    choices=[&#34;original&#34;, &#34;peterson&#34;, &#34;dummy&#34;],
+    help=&#34;Which adaptation model to use ?. Default is original.&#34;,
+)
+parser.add_argument(
+    &#34;-e&#34;,
+    &#34;--epochs&#34;,
+    type=int,
+    metavar=&#34;N&#34;,
+    default=150,
+    help=&#34;Number of epochs. Default is 150.&#34;,
+)
+parser.add_argument(
+    &#34;-r&#34;,
+    &#34;--runs&#34;,
+    type=int,
+    metavar=&#34;N&#34;,
+    default=1,
+    help=&#34;Number of runs. Default is 1.&#34;,
+)
+parser.add_argument(
+    &#34;-t&#34;,
+    &#34;--temperature&#34;,
+    type=int,
+    metavar=&#34;N&#34;,
+    default=1,
+    help=&#34;Temperature value. Default is 1.&#34;,
+)
+parser.add_argument(
+    &#34;--test-split&#34;,
+    type=float,
+    metavar=&#34;N&#34;,
+    default=0.25,
+    help=&#34;Splitting percentage for the validation set. Default is 0.25.&#34;,
+)
+parser.add_argument(
+    &#34;-k&#34;,
+    &#34;--topk&#34;,
+    nargs=&#34;+&#34;,
+    type=int,
+    metavar=&#34;N&#34;,
+    default=[1, 3],
+    help=&#34;Top k list values. Default is 1 and 3.&#34;,
+)
+
+use_cuda_parser = parser.add_mutually_exclusive_group(required=False)
+use_cuda_parser.add_argument(
+    &#34;--gpu&#34;, dest=&#34;use_cuda&#34;, action=&#34;store_true&#34;, help=&#34;Perform training on gpu&#34;
+)
+use_cuda_parser.add_argument(
+    &#34;--cpu&#34;, dest=&#34;use_cuda&#34;, action=&#34;store_false&#34;, help=&#34;Perform training on cpu&#34;
+)
+parser.set_defaults(use_cuda=True)
+
+if __name__ == &#34;__main__&#34;:
+    args = parser.parse_args()
+    print(&#34;temp &#34;, args.temperature)
+
+    if not Path(args.save_to).exists():
+        is_cuda = args.use_cuda and torch.cuda.is_available()
+        if not is_cuda:
+            device = torch.device(&#34;cpu&#34;)
+        else:
+            device = torch.device(&#34;cuda&#34;)
+
+        # load the dataset and split
+
+        embds_dataset = EmbDataset(args.data, only_original=False)
+
+        print(&#34;total &#34;, len(embds_dataset))
+        in_dim = embds_dataset[0][0][&#34;left&#34;].shape[0]
+
+        # data = embds_dataset.load_all_to_device(device)
+
+        splitted = utils.split_train_test(embds_dataset, args.test_split, device)
+        train_set, valid_set = splitted[&#34;train&#34;], splitted[&#34;test&#34;]
+
+        print(&#34;train set without aug size &#34;, len(train_set[0][&#34;left&#34;]))
+        print(&#34;train set with    aug size &#34;, len(train_set[1][&#34;left&#34;]))
+        print(&#34;test  set without aug size  &#34;, len(valid_set[&#34;left&#34;]))
+
+        metrics_of_all_runs = []
+        # optimizers_args = [{&#39;lr&#39;: 1e-3}, {&#39;lr&#39;: 0.0005, &#39;weight_decay&#39;: 1e-5},
+        # {&#39;lr&#39;: 1e-1, &#39;weight_decay&#39;: 1e-1}, {&#39;lr&#39;: 1, &#39;weight_decay&#39;: 1e-3}]
+
+        info = (
+            &#34;Embd path: &#34;
+            + str(args.data)
+            + &#34;\n&#34;
+            + &#34;Using augmented images: &#34;
+            + str(embds_dataset.augmented)
+            + &#34;\n&#34;
+        )
+
+        for run in trange(args.runs):
+            run_path = Path(args.save_to) / f&#34;run{run+1}&#34;
+            model = utils.construct_model(args.model, in_dim).to(device)
+
+            writer = SummaryWriter(run_path)
+            writer.add_text(&#34;Temperature: &#34;, str(args.temperature))
+            writer.add_text(&#34;Model&#34;, str(model).replace(&#34;\n&#34;, &#34;  \n&#34;))
+            writer.add_text(&#34;Informations: &#34;, info.replace(&#34;\n&#34;, &#34;  \n&#34;))
+
+            if args.model != &#34;dummy&#34;:
+                optimizer = torch.optim.Adam(model.parameters())
+                writer.add_text(&#34;Optimizer&#34;, str(optimizer).replace(&#34;\n&#34;, &#34;  \n&#34;))
+
+                metrics_per_run = train(
+                    model,
+                    calc_loss,
+                    train_set,
+                    valid_set,
+                    args.epochs,
+                    run_path,
+                    args.temperature,
+                    args.topk,
+                    device,
+                )
+                # save the model and the optimizer state_dics for this run
+                torch.save(
+                    {
+                        &#34;epoch&#34;: args.epochs,
+                        &#34;state_dict&#34;: model.state_dict(),
+                        &#34;optimzier&#34;: optimizer.state_dict(),
+                    },
+                    run_path / &#34;model_and_optimizer.pt&#34;,
+                )
+            else:
+                metrics_per_run = validate(
+                    model,
+                    calc_loss,
+                    valid_set,
+                    args.temperature,
+                    args.topk,
+                    device,
+                )
+                for metric, val in metrics_per_run.items():
+                    writer.add_scalar(metric, val, 1)
+                    writer.flush()
+                    
+
+            np.save(run_path / &#34;data&#34;, metrics_per_run)
+
+            metrics_of_all_runs.append(metrics_per_run)
+
+            splitted = utils.split_train_test(embds_dataset, args.test_split, device)
+            train_set, valid_set = splitted[&#34;train&#34;], splitted[&#34;test&#34;]
+
+        # save all runs metrics into one file
+        np.save(Path(args.save_to) / &#34;all_runs&#34;, metrics_of_all_runs)
+
+        avg_path = Path(args.save_to) / &#34;avg&#34;
+        writer = SummaryWriter(avg_path)
+
+        # TODO generalize this
+
+        if args.runs &gt; 1:
+            # constructing the avg values for the saved metrics
+            avg = dict()
+
+            if args.model != &#34;dummy&#34;:
+                for k in metrics_of_all_runs[0].keys():
+                    for kk in metrics_of_all_runs[0][k].keys():
+                        avg[kk] = np.average(
+                            [
+                                metrics_of_all_runs[i][k][kk]
+                                for i in range(len(metrics_of_all_runs))
+                            ],
+                            axis=0,
+                        )
+
+                        for i in range(len(avg[kk])):
+                            writer.add_scalar(&#34;Avg_&#34; + kk, avg[kk][i], i)
+                            writer.flush()
+            else:
+                for k in metrics_of_all_runs[0].keys():
+                    avg[k] = np.average(
+                        [
+                            metrics_of_all_runs[i][k]
+                            for i in range(len(metrics_of_all_runs))
+                        ],
+                        axis=0,
+                    )
+                print(avg)
+
+            # save avg of all runs
+            np.save(Path(args.save_to) / &#34;avg_of_all_runs&#34;, avg)
+
+    else:
+        print(
+            &#34;Found directory with the with the same saved name ! Will not perform training.&#34;
+        )</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="positive-similarity.train.train"><code class="name flex">
+<span>def <span class="ident">train</span></span>(<span>model: torch.nn.modules.module.Module, loss_func: function, train_set: Iterable[Dict], valid_set: Dict, num_epochs: int, save_to: str, temperature: int, topk_list: Iterable[int], device) ‑> Dict</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This will train the model with the given optimizer for {num_epochs} epochs.
+And it will save the metrics defined in training_step and validate in the given path {save_to}.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def train(
+    model: nn.Module,
+    loss_func: FunctionType,
+    train_set: Iterable[Dict],
+    valid_set: Dict,
+    num_epochs: int,
+    save_to: str,
+    temperature: int,
+    topk_list: Iterable[int],
+    device,
+) -&gt; Dict:
+    &#34;&#34;&#34;
+    This will train the model with the given optimizer for {num_epochs} epochs.
+    And it will save the metrics defined in training_step and validate in the given path {save_to}.
+    &#34;&#34;&#34;
+    for k in topk_list:
+        assert k &gt; 0
+
+    writer = SummaryWriter(save_to)
+    metrics_per_run = {&#34;train&#34;: dict(), &#34;test&#34;: dict()}
+
+    for epoch in trange(1, num_epochs + 1):
+        info = training_step(
+            model, loss_func, optimizer, train_set, temperature, topk_list, device
+        )
+        for metric, val in info.items():
+            if not (metric in metrics_per_run[&#34;train&#34;]):
+                metrics_per_run[&#34;train&#34;][metric] = []
+            metrics_per_run[&#34;train&#34;][metric].append(val)
+
+            writer.add_scalar(metric, val, epoch)
+            writer.flush()
+
+        info = validate(model, loss_func, valid_set, temperature, topk_list, device)
+        for metric, val in info.items():
+            if not (metric in metrics_per_run[&#34;test&#34;]):
+                metrics_per_run[&#34;test&#34;][metric] = []
+            metrics_per_run[&#34;test&#34;][metric].append(val)
+
+            writer.add_scalar(metric, val, epoch)
+            writer.flush()
+
+    np.save(run_path / &#34;data&#34;, metrics_per_run)
+
+    return metrics_per_run</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.train.training_step"><code class="name flex">
+<span>def <span class="ident">training_step</span></span>(<span>model: torch.nn.modules.module.Module, loss_func: function, optimizer: torch.optim.optimizer.Optimizer, train_sets: Iterable[Dict], temperature: int, topk_list: List[int], device)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Training the model for one epoch.
+Generally it will take two dicts:
+- the first one is the extracted embds of the original dataset
+- the second one is augmented version of these embds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def training_step(
+    model: nn.Module,
+    loss_func: FunctionType,
+    optimizer: optim.Optimizer,
+    train_sets: Iterable[Dict],
+    temperature: int,
+    topk_list: List[int],
+    device,
+):
+    &#34;&#34;&#34;
+    Training the model for one epoch.
+    Generally it will take two dicts:
+        - the first one is the extracted embds of the original dataset
+        - the second one is augmented version of these embds
+    &#34;&#34;&#34;
+    model.train()
+
+    total_loss = 0
+
+    for training_set in train_sets:
+        left, right = training_set[&#34;left&#34;], training_set[&#34;right&#34;]
+
+        out_left, out_right = model(left), model(right)
+
+        loss = loss_func(out_left, out_right, temperature, device)
+
+        total_loss += loss
+
+    total_loss /= len(train_sets)
+
+    # debate: include this in the loop above or not ?
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
+
+    metrics = {&#34;Train/Loss&#34;: total_loss.item()}
+
+    aR = utils.AsymmetricRecall(
+        out_left.clone().detach().cpu(), out_right.clone().detach().cpu()
+    )
+
+    for k in topk_list:
+        metrics[f&#34;Train/top {k}&#34;] = aR.eval(at=k)
+    return metrics</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.train.validate"><code class="name flex">
+<span>def <span class="ident">validate</span></span>(<span>model: torch.nn.modules.module.Module, loss_func: function, valid_set: Dict, temperature: int, topk_list: List[int], device)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Validating the model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate(
+    model: nn.Module,
+    loss_func: FunctionType,
+    valid_set: Dict,
+    temperature: int,
+    topk_list: List[int],
+    device,
+):
+    &#34;&#34;&#34;
+    Validating the model.
+    &#34;&#34;&#34;
+    model.eval()
+
+    with torch.no_grad():
+        left, right = valid_set[&#34;left&#34;], valid_set[&#34;right&#34;]
+        out_left, out_right = model(left), model(right)
+
+        test_loss = loss_func(out_left, out_right, temperature, device)
+
+        metrics = {&#34;Test/Loss&#34;: test_loss.item()}
+
+        aR = utils.AsymmetricRecall(out_left.detach().cpu(), out_right.detach().cpu())
+
+        for k in topk_list:
+            metrics[f&#34;Test/top {k}&#34;] = aR.eval(at=k)
+
+        return metrics</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="positive-similarity" href="index.html">positive-similarity</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="positive-similarity.train.train" href="#positive-similarity.train.train">train</a></code></li>
+<li><code><a title="positive-similarity.train.training_step" href="#positive-similarity.train.training_step">training_step</a></code></li>
+<li><code><a title="positive-similarity.train.validate" href="#positive-similarity.train.validate">validate</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

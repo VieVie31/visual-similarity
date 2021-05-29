@@ -1,5 +1,7 @@
-# Here goes our pre_processing transforms that we're going to apply to our dataset
-# These are the default ones in case there is no tranforms defined in the models dict
+"""
+Here goes our pre_processing transforms that we're going to apply to our dataset.
+These are the default ones in case there is no tranforms defined in the models dict.
+"""
 
 import torchvision.transforms as transforms
 

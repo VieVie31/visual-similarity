@@ -1,10 +1,3 @@
-import torch
-import torchvision.models
-import timm
-from . import utils
-
-from facenet_pytorch import InceptionResnetV1
-
 """
     This is the file that will contain the models dictionnary that will be used to compute the feature maps.
 
@@ -19,6 +12,14 @@ from facenet_pytorch import InceptionResnetV1
         transform (optional): torchvision.transforms (the transforms that will be applied to the dataset)
                               if not present, we'll use the default one in transforms.py file.
 """
+
+import torch
+import torchvision.models
+import timm
+from . import utils
+
+from facenet_pytorch import InceptionResnetV1
+
 models_dict = dict()
 
 # CLIP - OPENAI

@@ -1,0 +1,1559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>positive-similarity.featuresExtractor.processor API documentation</title>
+<meta name="description" content="Here we define our processor classes, basically a processor will take the outputs from the selected
+layers of some models, and it is up to him to …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>positive-similarity.featuresExtractor.processor</code></h1>
+</header>
+<section id="section-intro">
+<p>Here we define our processor classes, basically a processor will take the outputs from the selected
+layers of some models, and it is up to him to decide what he will do with these outputs.
+The one we used in practice in the AdaptationProcessorPCA.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34; 
+Here we define our processor classes, basically a processor will take the outputs from the selected
+layers of some models, and it is up to him to decide what he will do with these outputs.
+The one we used in practice in the AdaptationProcessorPCA.
+&#34;&#34;&#34;
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+from abc import ABC, abstractmethod
+from pathlib import Path
+from sklearn.decomposition import PCA
+from collections.abc import Iterable
+from tqdm import tqdm
+
+
+class Processor(ABC):
+    &#34;&#34;&#34;
+    Our base class. Each Processor must implement the following methods.
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str):
+        assert isinstance(save_path, str)
+
+        self.save_path = Path(save_path)
+        self.name = self.__class__.__name__
+
+    def set_path(self, path: Path):
+        assert isinstance(path, Path)
+
+        self.save_path = path
+
+    @abstractmethod
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Figuring out when to call execute will depend on what operations are done by the processor.
+        Generally, this method should figure out when to call the execute method.
+
+        Parameters:
+        model_name (str)    : name of the current model
+        layer_name (str)    : name of the layer of the current model
+        imgs_batch (Tensor) : a batch of RGB imgs
+        names (Iterable)    : the corresponding labels of these imgs
+        &#34;&#34;&#34;
+        raise NotImplementedError(&#34;Please implement this method&#34;)
+
+    @abstractmethod
+    def execute(self):
+        &#34;&#34;&#34;
+        This is where our post processing logic needs to be implemented.
+        Once you registered an extracted feature, this is where to define what are you going to do with it.
+        This method will be called in featureExtractor after we passed each model.
+        &#34;&#34;&#34;
+        raise NotImplementedError(&#34;Please implement this method&#34;)
+
+
+class SaveProcessor(Processor):
+    &#34;&#34;&#34;
+    This Processor is responsible for serializing and saving each feature in the given path.
+    &#34;&#34;&#34;
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
+    ):
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert isinstance(names, Iterable)
+        assert isinstance(imgs_batch, torch.Tensor)
+        assert imgs_batch.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.imgs = imgs_batch
+        self.names = names
+
+        # saving will be done step by step, each time we register a feature we will save it.
+        self.execute()
+
+    def execute(self):
+        if self.imgs is not None:
+            save_path = (
+                self.save_path
+                / str(self.name)
+                / str(self.model_name)
+                / str(self.layer_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            for img, name in zip(self.imgs, self.names):
+                # must use clone otherwise it&#39;ll save the whole batch tensor
+                # see: https://discuss.pytorch.org/t/saving-tensor-with-torch-save-uses-too-much-memory/46865/2
+                # and: https://pytorch.org/docs/stable/tensor_view.html
+                torch.save(img.clone(), save_path / (name + &#34;.pt&#34;))
+
+        self.imgs = None
+
+
+class PCAProcessor(Processor):
+    &#34;&#34;&#34;
+    This Processor is responsible for fitting a PCA to all the extracted features, and apply the
+    dimensionality reduction. The result will be saved in the save_path dir.
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str, out_dim: int):
+        assert int(out_dim) &gt; 0
+        super().__init__(save_path)
+
+        self.PCA = PCA(out_dim)
+        self.out_dim = out_dim
+        self.features_per_layer_dict = dict()
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Register the feature into the dictionnary after squeezing it and cast it to numpy array
+        &#34;&#34;&#34;
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert len(imgs_batch.size()) == 4
+        assert imgs_batch.size()[0] == len(names)
+
+        can_do_pca = sum(d &gt; 1 for d in imgs_batch.shape) &lt;= 2
+        if not can_do_pca:
+            # maybe we can add AdaptiveAvgPool2d((1,1)) in the future ?
+            raise ValueError(
+                f&#34;Found array with dim 4 (got a tensor of shape {imgs_batch.shape}). Estimator expected &lt;= 2.&#34;
+            )
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+
+        if not layer_name in self.features_per_layer_dict:
+            self.features_per_layer_dict[layer_name] = dict()
+
+        for img, name in zip(imgs_batch, names):
+            self.features_per_layer_dict[layer_name][name] = img.squeeze().numpy()
+
+    def execute(self):
+        &#34;&#34;&#34;
+        Fit the PCA with the saved features, and then save them in their corresponding path
+        &#34;&#34;&#34;
+        if bool(self.features_per_layer_dict):
+            t = tqdm(self.features_per_layer_dict)
+
+            for layer in t:
+                t.set_description(f&#34;PCA Fitting for {self.model_name} layer: {layer}&#34;)
+
+                X = torch.as_tensor(list(self.features_per_layer_dict[layer].values()))
+
+                self.PCA.fit(X)
+                reduced_features = self.PCA.transform(X)
+
+                save_path = (
+                    self.save_path
+                    / str(self.name)
+                    / str(self.model_name)
+                    / str(self.layer_name)
+                )
+                save_path.mkdir(parents=True, exist_ok=True)
+
+                names = self.features_per_layer_dict[layer].keys()
+                for name, feature in zip(names, reduced_features):
+                    torch.save(torch.from_numpy(feature), save_path / (name + &#34;.pt&#34;))
+
+            # reset and free the memory
+            del self.features_per_layer_dict
+            self.features_per_layer_dict = dict()
+
+
+class AdaptationProcessorPCA(Processor):
+    &#34;&#34;&#34;
+    This is our processor that will be used in practice. Here is what it does:
+        - Extract outputs from several layers
+        - Apply AvgPooling to these output to flatten them
+        - Concatenate them
+        - Apply PCA to reduce dimension
+        - Serialize the results
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str, out_dim: int):
+        assert int(out_dim) &gt; 0
+        super().__init__(save_path)
+
+        self.PCA = PCA(out_dim)
+        self.out_dim = out_dim
+
+        self.avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.names = []
+        self.merged_features = []
+        self.features_per_group_dict = dict()
+        self.save_path_names = set()
+
+        self.last_group_name = &#34;&#34;
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_output: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Save the batch in a dictionnary (keys are layers).
+        Check if the layer_name is already in the dict, if it is:
+            - start merging features
+            - save those merged features in another dictionnary
+            - reset the dictionnary.
+        &#34;&#34;&#34;
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert layer_output.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.save_path_names.add(self.save_path.name)
+        group_name = self.save_path.name
+
+        # a batch may consists of multiple groups (in case of ttl we have two: left &amp; right)
+        # means we got a new batch
+        if (
+            group_name in self.features_per_group_dict
+            and layer_name in self.features_per_group_dict[group_name]
+        ):
+            self.calculate_merged_features_and_reset_dict()
+
+        if group_name not in self.features_per_group_dict:
+            self.features_per_group_dict[group_name] = dict()
+
+        if layer_name not in self.features_per_group_dict[group_name]:
+            self.features_per_group_dict[group_name][layer_name] = dict()
+
+        self.features_per_group_dict[group_name][layer_name] = layer_output
+        self.features_per_group_dict[group_name][&#34;names&#34;] = [
+            group_name + &#34;_________&#34; + name for name in names
+        ]
+
+    def execute(self):
+        &#34;&#34;&#34;
+        Fit PCA to the merged features and serialize.
+        &#34;&#34;&#34;
+        # get the last ones
+        self.calculate_merged_features_and_reset_dict()
+
+        if len(self.merged_features) &gt; 0:
+            # PCA fitting
+            print(&#34;PCA fitting in progress...&#34;)
+
+            # moving tensor to cpu before doing PCA fitting (sklearn doesn&#39;t support GPU yet)
+            X = torch.stack([x for x in self.merged_features]).cpu()
+            self.PCA.fit(X)
+            reduced_features = self.PCA.transform(X)
+
+            print(&#34;Saving...&#34;)
+            # serialize and save
+            save_path = self.save_path / str(self.name) / str(self.model_name)
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            if len(self.save_path_names) &gt; 1:
+                d = {&#34;left&#34;: [], &#34;right&#34;: [], &#34;left_name&#34;: [], &#34;right_name&#34;: []}
+                assert len(self.names) == len(reduced_features)
+
+                for i in range(len(self.names)):
+                    if &#34;left&#34; in self.names[i]:
+                        d[&#34;left&#34;].append(reduced_features[i])
+                        d[&#34;left_name&#34;].append(self.names[i].split(&#34;_________&#34;)[-1])
+                    else:
+                        d[&#34;right&#34;].append(reduced_features[i])
+                        d[&#34;right_name&#34;].append(self.names[i].split(&#34;_________&#34;)[-1])
+
+                d[&#34;left&#34;], d[&#34;right&#34;] = np.asarray(d[&#34;left&#34;]), np.asarray(d[&#34;right&#34;])
+            else:
+                d = dict(zip(self.names, np.asarray(reduced_features)))
+
+            np.save(save_path / str(self.model_name), d)
+            np.save(save_path / &#34;pca.npy&#34;, self.PCA)
+
+            # crucial line here if we are iterating over multiple models
+            del self.merged_features, self.names
+            self.merged_features = []
+            self.names = []
+
+            # here to just free up some space in memory
+            del X, reduced_features
+
+            print(&#34;done&#34;)
+
+    def calculate_merged_features_and_reset_dict(self):
+        for group_name in self.features_per_group_dict:
+            l = [
+                features
+                for key, features in self.features_per_group_dict[group_name].items()
+                if key != &#34;names&#34;
+            ]
+            l = [
+                F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x
+                for x in l
+            ]  # avg_pool, squeeze and then normalize
+            # won&#39;t work if len(dataset) % batch_size == 1
+
+            l = torch.cat(l, 1)  # concatenate the
+
+            # save merged features
+            for i in range(len(l)):
+                self.merged_features.append(l[i])
+                self.names.append(self.features_per_group_dict[group_name][&#34;names&#34;][i])
+
+        # reset the dict
+        del self.features_per_group_dict
+        self.features_per_group_dict = dict()
+
+
+class AdaptationProcessor(Processor):
+    &#34;&#34;&#34;
+    Same as AdaptationProcessor but without pca.
+    Used in some envs where pca gets stuck because of conflicted versions of sklearn.
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str):
+        super().__init__(save_path)
+
+        self.avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.names = []
+        self.merged_features = []
+        self.features_per_group_dict = dict()
+        self.save_path_names = set()
+
+        self.last_group_name = &#34;&#34;
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_output: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Save the batch in a dictionnary (keys are layers).
+        Check if the layer_name is already in the dict, if it is:
+            - start merging features
+            - save those merged features in another dictionnary
+            - reset the dictionnary.
+        &#34;&#34;&#34;
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        #assert len(layer_output.size()) == 4
+        assert layer_output.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.save_path_names.add(self.save_path.name)
+        group_name = self.save_path.name
+
+        # a batch may consists of multiple groups (in case of ttl we have two: left &amp; right)
+        # means we got a new batch
+        if (
+            group_name in self.features_per_group_dict
+            and layer_name in self.features_per_group_dict[group_name]
+        ):
+            self.calculate_merged_features_and_reset_dict()
+
+        if group_name not in self.features_per_group_dict:
+            self.features_per_group_dict[group_name] = dict()
+
+        if layer_name not in self.features_per_group_dict[group_name]:
+            self.features_per_group_dict[group_name][layer_name] = dict()
+
+        self.features_per_group_dict[group_name][layer_name] = layer_output
+        self.features_per_group_dict[group_name][&#34;names&#34;] = [
+            group_name + &#34;_&#34; + name for name in names
+        ]
+
+    def execute(self):
+        &#34;&#34;&#34;
+        Fit PCA to the merged features and serialize.
+        &#34;&#34;&#34;
+        # get the last ones
+        self.calculate_merged_features_and_reset_dict()
+
+        if len(self.merged_features) &gt; 0:
+            X = torch.stack([x for x in self.merged_features]).numpy()
+
+            print(&#34;Saving original features...&#34;)
+            # serialize and save
+            save_path = (
+                self.save_path / str(self.__class__.__name__) / str(self.model_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            if len(self.save_path_names) &gt; 1:
+                d = {&#34;left&#34;: [], &#34;right&#34;: [], &#34;left_name&#34;: [], &#34;right_name&#34;: []}
+                assert len(self.names) == len(X)
+
+                for i in range(len(self.names)):
+                    if &#34;left&#34; in self.names[i]:
+                        d[&#34;left&#34;].append(X[i])
+                        d[&#34;left_name&#34;].append(self.names[i].split(&#34;_&#34;)[-1])
+                    else:
+                        d[&#34;right&#34;].append(X[i])
+                        d[&#34;right_name&#34;].append(self.names[i].split(&#34;_&#34;)[-1])
+
+                d[&#34;left&#34;], d[&#34;right&#34;] = np.asarray(d[&#34;left&#34;]), np.asarray(d[&#34;right&#34;])
+            else:
+                d = dict(zip(self.names, np.asarray(X)))
+
+            np.save(save_path / str(self.model_name), d)
+            # crucial line here if we are iterating over multiple models
+            del self.merged_features, self.names
+            self.merged_features = []
+            self.names = []
+
+            # here to just free up some space in memory
+            #del X, reduced_features
+            del X
+
+            print(&#34;done&#34;)
+
+    def calculate_merged_features_and_reset_dict(self):
+        for group_name in self.features_per_group_dict:
+            l = [
+                features
+                for key, features in self.features_per_group_dict[group_name].items()
+                if key != &#34;names&#34;
+            ]
+            
+            l = [
+                F.normalize(self.avg(x).squeeze() if len(x.shape) == 4 else x) for x in l
+            ]  # avg_pool, squeeze and then normalize
+            # won&#39;t work if len(dataset) % batch_size == 1
+
+            l = torch.cat(l, 1)  # concatenate the
+
+            # save merged features
+            for i in range(len(l)):
+                self.merged_features.append(l[i])
+                self.names.append(self.features_per_group_dict[group_name][&#34;names&#34;][i])
+
+        # reset the dict
+        del self.features_per_group_dict
+        self.features_per_group_dict = dict()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessor"><code class="flex name class">
+<span>class <span class="ident">AdaptationProcessor</span></span>
+<span>(</span><span>save_path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Same as AdaptationProcessor but without pca.
+Used in some envs where pca gets stuck because of conflicted versions of sklearn.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AdaptationProcessor(Processor):
+    &#34;&#34;&#34;
+    Same as AdaptationProcessor but without pca.
+    Used in some envs where pca gets stuck because of conflicted versions of sklearn.
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str):
+        super().__init__(save_path)
+
+        self.avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.names = []
+        self.merged_features = []
+        self.features_per_group_dict = dict()
+        self.save_path_names = set()
+
+        self.last_group_name = &#34;&#34;
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_output: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Save the batch in a dictionnary (keys are layers).
+        Check if the layer_name is already in the dict, if it is:
+            - start merging features
+            - save those merged features in another dictionnary
+            - reset the dictionnary.
+        &#34;&#34;&#34;
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        #assert len(layer_output.size()) == 4
+        assert layer_output.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.save_path_names.add(self.save_path.name)
+        group_name = self.save_path.name
+
+        # a batch may consists of multiple groups (in case of ttl we have two: left &amp; right)
+        # means we got a new batch
+        if (
+            group_name in self.features_per_group_dict
+            and layer_name in self.features_per_group_dict[group_name]
+        ):
+            self.calculate_merged_features_and_reset_dict()
+
+        if group_name not in self.features_per_group_dict:
+            self.features_per_group_dict[group_name] = dict()
+
+        if layer_name not in self.features_per_group_dict[group_name]:
+            self.features_per_group_dict[group_name][layer_name] = dict()
+
+        self.features_per_group_dict[group_name][layer_name] = layer_output
+        self.features_per_group_dict[group_name][&#34;names&#34;] = [
+            group_name + &#34;_&#34; + name for name in names
+        ]
+
+    def execute(self):
+        &#34;&#34;&#34;
+        Fit PCA to the merged features and serialize.
+        &#34;&#34;&#34;
+        # get the last ones
+        self.calculate_merged_features_and_reset_dict()
+
+        if len(self.merged_features) &gt; 0:
+            X = torch.stack([x for x in self.merged_features]).numpy()
+
+            print(&#34;Saving original features...&#34;)
+            # serialize and save
+            save_path = (
+                self.save_path / str(self.__class__.__name__) / str(self.model_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            if len(self.save_path_names) &gt; 1:
+                d = {&#34;left&#34;: [], &#34;right&#34;: [], &#34;left_name&#34;: [], &#34;right_name&#34;: []}
+                assert len(self.names) == len(X)
+
+                for i in range(len(self.names)):
+                    if &#34;left&#34; in self.names[i]:
+                        d[&#34;left&#34;].append(X[i])
+                        d[&#34;left_name&#34;].append(self.names[i].split(&#34;_&#34;)[-1])
+                    else:
+                        d[&#34;right&#34;].append(X[i])
+                        d[&#34;right_name&#34;].append(self.names[i].split(&#34;_&#34;)[-1])
+
+                d[&#34;left&#34;], d[&#34;right&#34;] = np.asarray(d[&#34;left&#34;]), np.asarray(d[&#34;right&#34;])
+            else:
+                d = dict(zip(self.names, np.asarray(X)))
+
+            np.save(save_path / str(self.model_name), d)
+            # crucial line here if we are iterating over multiple models
+            del self.merged_features, self.names
+            self.merged_features = []
+            self.names = []
+
+            # here to just free up some space in memory
+            #del X, reduced_features
+            del X
+
+            print(&#34;done&#34;)
+
+    def calculate_merged_features_and_reset_dict(self):
+        for group_name in self.features_per_group_dict:
+            l = [
+                features
+                for key, features in self.features_per_group_dict[group_name].items()
+                if key != &#34;names&#34;
+            ]
+            
+            l = [
+                F.normalize(self.avg(x).squeeze() if len(x.shape) == 4 else x) for x in l
+            ]  # avg_pool, squeeze and then normalize
+            # won&#39;t work if len(dataset) % batch_size == 1
+
+            l = torch.cat(l, 1)  # concatenate the
+
+            # save merged features
+            for i in range(len(l)):
+                self.merged_features.append(l[i])
+                self.names.append(self.features_per_group_dict[group_name][&#34;names&#34;][i])
+
+        # reset the dict
+        del self.features_per_group_dict
+        self.features_per_group_dict = dict()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="positive-similarity.featuresExtractor.processor.Processor" href="#positive-similarity.featuresExtractor.processor.Processor">Processor</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessor.calculate_merged_features_and_reset_dict"><code class="name flex">
+<span>def <span class="ident">calculate_merged_features_and_reset_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_merged_features_and_reset_dict(self):
+    for group_name in self.features_per_group_dict:
+        l = [
+            features
+            for key, features in self.features_per_group_dict[group_name].items()
+            if key != &#34;names&#34;
+        ]
+        
+        l = [
+            F.normalize(self.avg(x).squeeze() if len(x.shape) == 4 else x) for x in l
+        ]  # avg_pool, squeeze and then normalize
+        # won&#39;t work if len(dataset) % batch_size == 1
+
+        l = torch.cat(l, 1)  # concatenate the
+
+        # save merged features
+        for i in range(len(l)):
+            self.merged_features.append(l[i])
+            self.names.append(self.features_per_group_dict[group_name][&#34;names&#34;][i])
+
+    # reset the dict
+    del self.features_per_group_dict
+    self.features_per_group_dict = dict()</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessor.execute"><code class="name flex">
+<span>def <span class="ident">execute</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fit PCA to the merged features and serialize.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def execute(self):
+    &#34;&#34;&#34;
+    Fit PCA to the merged features and serialize.
+    &#34;&#34;&#34;
+    # get the last ones
+    self.calculate_merged_features_and_reset_dict()
+
+    if len(self.merged_features) &gt; 0:
+        X = torch.stack([x for x in self.merged_features]).numpy()
+
+        print(&#34;Saving original features...&#34;)
+        # serialize and save
+        save_path = (
+            self.save_path / str(self.__class__.__name__) / str(self.model_name)
+        )
+        save_path.mkdir(parents=True, exist_ok=True)
+
+        if len(self.save_path_names) &gt; 1:
+            d = {&#34;left&#34;: [], &#34;right&#34;: [], &#34;left_name&#34;: [], &#34;right_name&#34;: []}
+            assert len(self.names) == len(X)
+
+            for i in range(len(self.names)):
+                if &#34;left&#34; in self.names[i]:
+                    d[&#34;left&#34;].append(X[i])
+                    d[&#34;left_name&#34;].append(self.names[i].split(&#34;_&#34;)[-1])
+                else:
+                    d[&#34;right&#34;].append(X[i])
+                    d[&#34;right_name&#34;].append(self.names[i].split(&#34;_&#34;)[-1])
+
+            d[&#34;left&#34;], d[&#34;right&#34;] = np.asarray(d[&#34;left&#34;]), np.asarray(d[&#34;right&#34;])
+        else:
+            d = dict(zip(self.names, np.asarray(X)))
+
+        np.save(save_path / str(self.model_name), d)
+        # crucial line here if we are iterating over multiple models
+        del self.merged_features, self.names
+        self.merged_features = []
+        self.names = []
+
+        # here to just free up some space in memory
+        #del X, reduced_features
+        del X
+
+        print(&#34;done&#34;)</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessor.register"><code class="name flex">
+<span>def <span class="ident">register</span></span>(<span>self, model_name: str, layer_name: str, layer_output: torch.Tensor, names: collections.abc.Iterable)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save the batch in a dictionnary (keys are layers).
+Check if the layer_name is already in the dict, if it is:
+- start merging features
+- save those merged features in another dictionnary
+- reset the dictionnary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register(
+    self,
+    model_name: str,
+    layer_name: str,
+    layer_output: torch.Tensor,
+    names: Iterable,
+):
+    &#34;&#34;&#34;
+    Save the batch in a dictionnary (keys are layers).
+    Check if the layer_name is already in the dict, if it is:
+        - start merging features
+        - save those merged features in another dictionnary
+        - reset the dictionnary.
+    &#34;&#34;&#34;
+    assert isinstance(model_name, str)
+    assert isinstance(layer_name, str)
+    #assert len(layer_output.size()) == 4
+    assert layer_output.size()[0] == len(names)
+
+    self.model_name = model_name
+    self.layer_name = layer_name
+    self.save_path_names.add(self.save_path.name)
+    group_name = self.save_path.name
+
+    # a batch may consists of multiple groups (in case of ttl we have two: left &amp; right)
+    # means we got a new batch
+    if (
+        group_name in self.features_per_group_dict
+        and layer_name in self.features_per_group_dict[group_name]
+    ):
+        self.calculate_merged_features_and_reset_dict()
+
+    if group_name not in self.features_per_group_dict:
+        self.features_per_group_dict[group_name] = dict()
+
+    if layer_name not in self.features_per_group_dict[group_name]:
+        self.features_per_group_dict[group_name][layer_name] = dict()
+
+    self.features_per_group_dict[group_name][layer_name] = layer_output
+    self.features_per_group_dict[group_name][&#34;names&#34;] = [
+        group_name + &#34;_&#34; + name for name in names
+    ]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA"><code class="flex name class">
+<span>class <span class="ident">AdaptationProcessorPCA</span></span>
+<span>(</span><span>save_path: str, out_dim: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is our processor that will be used in practice. Here is what it does:
+- Extract outputs from several layers
+- Apply AvgPooling to these output to flatten them
+- Concatenate them
+- Apply PCA to reduce dimension
+- Serialize the results</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AdaptationProcessorPCA(Processor):
+    &#34;&#34;&#34;
+    This is our processor that will be used in practice. Here is what it does:
+        - Extract outputs from several layers
+        - Apply AvgPooling to these output to flatten them
+        - Concatenate them
+        - Apply PCA to reduce dimension
+        - Serialize the results
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str, out_dim: int):
+        assert int(out_dim) &gt; 0
+        super().__init__(save_path)
+
+        self.PCA = PCA(out_dim)
+        self.out_dim = out_dim
+
+        self.avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.names = []
+        self.merged_features = []
+        self.features_per_group_dict = dict()
+        self.save_path_names = set()
+
+        self.last_group_name = &#34;&#34;
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        layer_output: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Save the batch in a dictionnary (keys are layers).
+        Check if the layer_name is already in the dict, if it is:
+            - start merging features
+            - save those merged features in another dictionnary
+            - reset the dictionnary.
+        &#34;&#34;&#34;
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert layer_output.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.save_path_names.add(self.save_path.name)
+        group_name = self.save_path.name
+
+        # a batch may consists of multiple groups (in case of ttl we have two: left &amp; right)
+        # means we got a new batch
+        if (
+            group_name in self.features_per_group_dict
+            and layer_name in self.features_per_group_dict[group_name]
+        ):
+            self.calculate_merged_features_and_reset_dict()
+
+        if group_name not in self.features_per_group_dict:
+            self.features_per_group_dict[group_name] = dict()
+
+        if layer_name not in self.features_per_group_dict[group_name]:
+            self.features_per_group_dict[group_name][layer_name] = dict()
+
+        self.features_per_group_dict[group_name][layer_name] = layer_output
+        self.features_per_group_dict[group_name][&#34;names&#34;] = [
+            group_name + &#34;_________&#34; + name for name in names
+        ]
+
+    def execute(self):
+        &#34;&#34;&#34;
+        Fit PCA to the merged features and serialize.
+        &#34;&#34;&#34;
+        # get the last ones
+        self.calculate_merged_features_and_reset_dict()
+
+        if len(self.merged_features) &gt; 0:
+            # PCA fitting
+            print(&#34;PCA fitting in progress...&#34;)
+
+            # moving tensor to cpu before doing PCA fitting (sklearn doesn&#39;t support GPU yet)
+            X = torch.stack([x for x in self.merged_features]).cpu()
+            self.PCA.fit(X)
+            reduced_features = self.PCA.transform(X)
+
+            print(&#34;Saving...&#34;)
+            # serialize and save
+            save_path = self.save_path / str(self.name) / str(self.model_name)
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            if len(self.save_path_names) &gt; 1:
+                d = {&#34;left&#34;: [], &#34;right&#34;: [], &#34;left_name&#34;: [], &#34;right_name&#34;: []}
+                assert len(self.names) == len(reduced_features)
+
+                for i in range(len(self.names)):
+                    if &#34;left&#34; in self.names[i]:
+                        d[&#34;left&#34;].append(reduced_features[i])
+                        d[&#34;left_name&#34;].append(self.names[i].split(&#34;_________&#34;)[-1])
+                    else:
+                        d[&#34;right&#34;].append(reduced_features[i])
+                        d[&#34;right_name&#34;].append(self.names[i].split(&#34;_________&#34;)[-1])
+
+                d[&#34;left&#34;], d[&#34;right&#34;] = np.asarray(d[&#34;left&#34;]), np.asarray(d[&#34;right&#34;])
+            else:
+                d = dict(zip(self.names, np.asarray(reduced_features)))
+
+            np.save(save_path / str(self.model_name), d)
+            np.save(save_path / &#34;pca.npy&#34;, self.PCA)
+
+            # crucial line here if we are iterating over multiple models
+            del self.merged_features, self.names
+            self.merged_features = []
+            self.names = []
+
+            # here to just free up some space in memory
+            del X, reduced_features
+
+            print(&#34;done&#34;)
+
+    def calculate_merged_features_and_reset_dict(self):
+        for group_name in self.features_per_group_dict:
+            l = [
+                features
+                for key, features in self.features_per_group_dict[group_name].items()
+                if key != &#34;names&#34;
+            ]
+            l = [
+                F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x
+                for x in l
+            ]  # avg_pool, squeeze and then normalize
+            # won&#39;t work if len(dataset) % batch_size == 1
+
+            l = torch.cat(l, 1)  # concatenate the
+
+            # save merged features
+            for i in range(len(l)):
+                self.merged_features.append(l[i])
+                self.names.append(self.features_per_group_dict[group_name][&#34;names&#34;][i])
+
+        # reset the dict
+        del self.features_per_group_dict
+        self.features_per_group_dict = dict()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="positive-similarity.featuresExtractor.processor.Processor" href="#positive-similarity.featuresExtractor.processor.Processor">Processor</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.calculate_merged_features_and_reset_dict"><code class="name flex">
+<span>def <span class="ident">calculate_merged_features_and_reset_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_merged_features_and_reset_dict(self):
+    for group_name in self.features_per_group_dict:
+        l = [
+            features
+            for key, features in self.features_per_group_dict[group_name].items()
+            if key != &#34;names&#34;
+        ]
+        l = [
+            F.normalize(self.avg(x).squeeze()) if len(x.shape) == 4 else x
+            for x in l
+        ]  # avg_pool, squeeze and then normalize
+        # won&#39;t work if len(dataset) % batch_size == 1
+
+        l = torch.cat(l, 1)  # concatenate the
+
+        # save merged features
+        for i in range(len(l)):
+            self.merged_features.append(l[i])
+            self.names.append(self.features_per_group_dict[group_name][&#34;names&#34;][i])
+
+    # reset the dict
+    del self.features_per_group_dict
+    self.features_per_group_dict = dict()</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.execute"><code class="name flex">
+<span>def <span class="ident">execute</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fit PCA to the merged features and serialize.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def execute(self):
+    &#34;&#34;&#34;
+    Fit PCA to the merged features and serialize.
+    &#34;&#34;&#34;
+    # get the last ones
+    self.calculate_merged_features_and_reset_dict()
+
+    if len(self.merged_features) &gt; 0:
+        # PCA fitting
+        print(&#34;PCA fitting in progress...&#34;)
+
+        # moving tensor to cpu before doing PCA fitting (sklearn doesn&#39;t support GPU yet)
+        X = torch.stack([x for x in self.merged_features]).cpu()
+        self.PCA.fit(X)
+        reduced_features = self.PCA.transform(X)
+
+        print(&#34;Saving...&#34;)
+        # serialize and save
+        save_path = self.save_path / str(self.name) / str(self.model_name)
+        save_path.mkdir(parents=True, exist_ok=True)
+
+        if len(self.save_path_names) &gt; 1:
+            d = {&#34;left&#34;: [], &#34;right&#34;: [], &#34;left_name&#34;: [], &#34;right_name&#34;: []}
+            assert len(self.names) == len(reduced_features)
+
+            for i in range(len(self.names)):
+                if &#34;left&#34; in self.names[i]:
+                    d[&#34;left&#34;].append(reduced_features[i])
+                    d[&#34;left_name&#34;].append(self.names[i].split(&#34;_________&#34;)[-1])
+                else:
+                    d[&#34;right&#34;].append(reduced_features[i])
+                    d[&#34;right_name&#34;].append(self.names[i].split(&#34;_________&#34;)[-1])
+
+            d[&#34;left&#34;], d[&#34;right&#34;] = np.asarray(d[&#34;left&#34;]), np.asarray(d[&#34;right&#34;])
+        else:
+            d = dict(zip(self.names, np.asarray(reduced_features)))
+
+        np.save(save_path / str(self.model_name), d)
+        np.save(save_path / &#34;pca.npy&#34;, self.PCA)
+
+        # crucial line here if we are iterating over multiple models
+        del self.merged_features, self.names
+        self.merged_features = []
+        self.names = []
+
+        # here to just free up some space in memory
+        del X, reduced_features
+
+        print(&#34;done&#34;)</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.register"><code class="name flex">
+<span>def <span class="ident">register</span></span>(<span>self, model_name: str, layer_name: str, layer_output: torch.Tensor, names: collections.abc.Iterable)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save the batch in a dictionnary (keys are layers).
+Check if the layer_name is already in the dict, if it is:
+- start merging features
+- save those merged features in another dictionnary
+- reset the dictionnary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register(
+    self,
+    model_name: str,
+    layer_name: str,
+    layer_output: torch.Tensor,
+    names: Iterable,
+):
+    &#34;&#34;&#34;
+    Save the batch in a dictionnary (keys are layers).
+    Check if the layer_name is already in the dict, if it is:
+        - start merging features
+        - save those merged features in another dictionnary
+        - reset the dictionnary.
+    &#34;&#34;&#34;
+    assert isinstance(model_name, str)
+    assert isinstance(layer_name, str)
+    assert layer_output.size()[0] == len(names)
+
+    self.model_name = model_name
+    self.layer_name = layer_name
+    self.save_path_names.add(self.save_path.name)
+    group_name = self.save_path.name
+
+    # a batch may consists of multiple groups (in case of ttl we have two: left &amp; right)
+    # means we got a new batch
+    if (
+        group_name in self.features_per_group_dict
+        and layer_name in self.features_per_group_dict[group_name]
+    ):
+        self.calculate_merged_features_and_reset_dict()
+
+    if group_name not in self.features_per_group_dict:
+        self.features_per_group_dict[group_name] = dict()
+
+    if layer_name not in self.features_per_group_dict[group_name]:
+        self.features_per_group_dict[group_name][layer_name] = dict()
+
+    self.features_per_group_dict[group_name][layer_name] = layer_output
+    self.features_per_group_dict[group_name][&#34;names&#34;] = [
+        group_name + &#34;_________&#34; + name for name in names
+    ]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.PCAProcessor"><code class="flex name class">
+<span>class <span class="ident">PCAProcessor</span></span>
+<span>(</span><span>save_path: str, out_dim: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This Processor is responsible for fitting a PCA to all the extracted features, and apply the
+dimensionality reduction. The result will be saved in the save_path dir.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PCAProcessor(Processor):
+    &#34;&#34;&#34;
+    This Processor is responsible for fitting a PCA to all the extracted features, and apply the
+    dimensionality reduction. The result will be saved in the save_path dir.
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str, out_dim: int):
+        assert int(out_dim) &gt; 0
+        super().__init__(save_path)
+
+        self.PCA = PCA(out_dim)
+        self.out_dim = out_dim
+        self.features_per_layer_dict = dict()
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Register the feature into the dictionnary after squeezing it and cast it to numpy array
+        &#34;&#34;&#34;
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert len(imgs_batch.size()) == 4
+        assert imgs_batch.size()[0] == len(names)
+
+        can_do_pca = sum(d &gt; 1 for d in imgs_batch.shape) &lt;= 2
+        if not can_do_pca:
+            # maybe we can add AdaptiveAvgPool2d((1,1)) in the future ?
+            raise ValueError(
+                f&#34;Found array with dim 4 (got a tensor of shape {imgs_batch.shape}). Estimator expected &lt;= 2.&#34;
+            )
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+
+        if not layer_name in self.features_per_layer_dict:
+            self.features_per_layer_dict[layer_name] = dict()
+
+        for img, name in zip(imgs_batch, names):
+            self.features_per_layer_dict[layer_name][name] = img.squeeze().numpy()
+
+    def execute(self):
+        &#34;&#34;&#34;
+        Fit the PCA with the saved features, and then save them in their corresponding path
+        &#34;&#34;&#34;
+        if bool(self.features_per_layer_dict):
+            t = tqdm(self.features_per_layer_dict)
+
+            for layer in t:
+                t.set_description(f&#34;PCA Fitting for {self.model_name} layer: {layer}&#34;)
+
+                X = torch.as_tensor(list(self.features_per_layer_dict[layer].values()))
+
+                self.PCA.fit(X)
+                reduced_features = self.PCA.transform(X)
+
+                save_path = (
+                    self.save_path
+                    / str(self.name)
+                    / str(self.model_name)
+                    / str(self.layer_name)
+                )
+                save_path.mkdir(parents=True, exist_ok=True)
+
+                names = self.features_per_layer_dict[layer].keys()
+                for name, feature in zip(names, reduced_features):
+                    torch.save(torch.from_numpy(feature), save_path / (name + &#34;.pt&#34;))
+
+            # reset and free the memory
+            del self.features_per_layer_dict
+            self.features_per_layer_dict = dict()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="positive-similarity.featuresExtractor.processor.Processor" href="#positive-similarity.featuresExtractor.processor.Processor">Processor</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="positive-similarity.featuresExtractor.processor.PCAProcessor.execute"><code class="name flex">
+<span>def <span class="ident">execute</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fit the PCA with the saved features, and then save them in their corresponding path</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def execute(self):
+    &#34;&#34;&#34;
+    Fit the PCA with the saved features, and then save them in their corresponding path
+    &#34;&#34;&#34;
+    if bool(self.features_per_layer_dict):
+        t = tqdm(self.features_per_layer_dict)
+
+        for layer in t:
+            t.set_description(f&#34;PCA Fitting for {self.model_name} layer: {layer}&#34;)
+
+            X = torch.as_tensor(list(self.features_per_layer_dict[layer].values()))
+
+            self.PCA.fit(X)
+            reduced_features = self.PCA.transform(X)
+
+            save_path = (
+                self.save_path
+                / str(self.name)
+                / str(self.model_name)
+                / str(self.layer_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            names = self.features_per_layer_dict[layer].keys()
+            for name, feature in zip(names, reduced_features):
+                torch.save(torch.from_numpy(feature), save_path / (name + &#34;.pt&#34;))
+
+        # reset and free the memory
+        del self.features_per_layer_dict
+        self.features_per_layer_dict = dict()</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.PCAProcessor.register"><code class="name flex">
+<span>def <span class="ident">register</span></span>(<span>self, model_name: str, layer_name: str, imgs_batch: torch.Tensor, names: collections.abc.Iterable)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Register the feature into the dictionnary after squeezing it and cast it to numpy array</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register(
+    self,
+    model_name: str,
+    layer_name: str,
+    imgs_batch: torch.Tensor,
+    names: Iterable,
+):
+    &#34;&#34;&#34;
+    Register the feature into the dictionnary after squeezing it and cast it to numpy array
+    &#34;&#34;&#34;
+    assert isinstance(model_name, str)
+    assert isinstance(layer_name, str)
+    assert len(imgs_batch.size()) == 4
+    assert imgs_batch.size()[0] == len(names)
+
+    can_do_pca = sum(d &gt; 1 for d in imgs_batch.shape) &lt;= 2
+    if not can_do_pca:
+        # maybe we can add AdaptiveAvgPool2d((1,1)) in the future ?
+        raise ValueError(
+            f&#34;Found array with dim 4 (got a tensor of shape {imgs_batch.shape}). Estimator expected &lt;= 2.&#34;
+        )
+
+    self.model_name = model_name
+    self.layer_name = layer_name
+
+    if not layer_name in self.features_per_layer_dict:
+        self.features_per_layer_dict[layer_name] = dict()
+
+    for img, name in zip(imgs_batch, names):
+        self.features_per_layer_dict[layer_name][name] = img.squeeze().numpy()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.Processor"><code class="flex name class">
+<span>class <span class="ident">Processor</span></span>
+<span>(</span><span>save_path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Our base class. Each Processor must implement the following methods.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Processor(ABC):
+    &#34;&#34;&#34;
+    Our base class. Each Processor must implement the following methods.
+    &#34;&#34;&#34;
+
+    def __init__(self, save_path: str):
+        assert isinstance(save_path, str)
+
+        self.save_path = Path(save_path)
+        self.name = self.__class__.__name__
+
+    def set_path(self, path: Path):
+        assert isinstance(path, Path)
+
+        self.save_path = path
+
+    @abstractmethod
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
+    ):
+        &#34;&#34;&#34;
+        Figuring out when to call execute will depend on what operations are done by the processor.
+        Generally, this method should figure out when to call the execute method.
+
+        Parameters:
+        model_name (str)    : name of the current model
+        layer_name (str)    : name of the layer of the current model
+        imgs_batch (Tensor) : a batch of RGB imgs
+        names (Iterable)    : the corresponding labels of these imgs
+        &#34;&#34;&#34;
+        raise NotImplementedError(&#34;Please implement this method&#34;)
+
+    @abstractmethod
+    def execute(self):
+        &#34;&#34;&#34;
+        This is where our post processing logic needs to be implemented.
+        Once you registered an extracted feature, this is where to define what are you going to do with it.
+        This method will be called in featureExtractor after we passed each model.
+        &#34;&#34;&#34;
+        raise NotImplementedError(&#34;Please implement this method&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessor" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessor">AdaptationProcessor</a></li>
+<li><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA">AdaptationProcessorPCA</a></li>
+<li><a title="positive-similarity.featuresExtractor.processor.PCAProcessor" href="#positive-similarity.featuresExtractor.processor.PCAProcessor">PCAProcessor</a></li>
+<li><a title="positive-similarity.featuresExtractor.processor.SaveProcessor" href="#positive-similarity.featuresExtractor.processor.SaveProcessor">SaveProcessor</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="positive-similarity.featuresExtractor.processor.Processor.execute"><code class="name flex">
+<span>def <span class="ident">execute</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This is where our post processing logic needs to be implemented.
+Once you registered an extracted feature, this is where to define what are you going to do with it.
+This method will be called in featureExtractor after we passed each model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def execute(self):
+    &#34;&#34;&#34;
+    This is where our post processing logic needs to be implemented.
+    Once you registered an extracted feature, this is where to define what are you going to do with it.
+    This method will be called in featureExtractor after we passed each model.
+    &#34;&#34;&#34;
+    raise NotImplementedError(&#34;Please implement this method&#34;)</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.Processor.register"><code class="name flex">
+<span>def <span class="ident">register</span></span>(<span>self, model_name: str, layer_name: str, imgs_batch: torch.Tensor, names: collections.abc.Iterable)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Figuring out when to call execute will depend on what operations are done by the processor.
+Generally, this method should figure out when to call the execute method.</p>
+<p>Parameters:
+model_name (str)
+: name of the current model
+layer_name (str)
+: name of the layer of the current model
+imgs_batch (Tensor) : a batch of RGB imgs
+names (Iterable)
+: the corresponding labels of these imgs</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@abstractmethod
+def register(
+    self,
+    model_name: str,
+    layer_name: str,
+    imgs_batch: torch.Tensor,
+    names: Iterable,
+):
+    &#34;&#34;&#34;
+    Figuring out when to call execute will depend on what operations are done by the processor.
+    Generally, this method should figure out when to call the execute method.
+
+    Parameters:
+    model_name (str)    : name of the current model
+    layer_name (str)    : name of the layer of the current model
+    imgs_batch (Tensor) : a batch of RGB imgs
+    names (Iterable)    : the corresponding labels of these imgs
+    &#34;&#34;&#34;
+    raise NotImplementedError(&#34;Please implement this method&#34;)</code></pre>
+</details>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.Processor.set_path"><code class="name flex">
+<span>def <span class="ident">set_path</span></span>(<span>self, path: pathlib.Path)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_path(self, path: Path):
+    assert isinstance(path, Path)
+
+    self.save_path = path</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="positive-similarity.featuresExtractor.processor.SaveProcessor"><code class="flex name class">
+<span>class <span class="ident">SaveProcessor</span></span>
+<span>(</span><span>save_path: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>This Processor is responsible for serializing and saving each feature in the given path.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SaveProcessor(Processor):
+    &#34;&#34;&#34;
+    This Processor is responsible for serializing and saving each feature in the given path.
+    &#34;&#34;&#34;
+
+    def register(
+        self,
+        model_name: str,
+        layer_name: str,
+        imgs_batch: torch.Tensor,
+        names: Iterable,
+    ):
+        assert isinstance(model_name, str)
+        assert isinstance(layer_name, str)
+        assert isinstance(names, Iterable)
+        assert isinstance(imgs_batch, torch.Tensor)
+        assert imgs_batch.size()[0] == len(names)
+
+        self.model_name = model_name
+        self.layer_name = layer_name
+        self.imgs = imgs_batch
+        self.names = names
+
+        # saving will be done step by step, each time we register a feature we will save it.
+        self.execute()
+
+    def execute(self):
+        if self.imgs is not None:
+            save_path = (
+                self.save_path
+                / str(self.name)
+                / str(self.model_name)
+                / str(self.layer_name)
+            )
+            save_path.mkdir(parents=True, exist_ok=True)
+
+            for img, name in zip(self.imgs, self.names):
+                # must use clone otherwise it&#39;ll save the whole batch tensor
+                # see: https://discuss.pytorch.org/t/saving-tensor-with-torch-save-uses-too-much-memory/46865/2
+                # and: https://pytorch.org/docs/stable/tensor_view.html
+                torch.save(img.clone(), save_path / (name + &#34;.pt&#34;))
+
+        self.imgs = None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="positive-similarity.featuresExtractor.processor.Processor" href="#positive-similarity.featuresExtractor.processor.Processor">Processor</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="positive-similarity.featuresExtractor.processor.Processor" href="#positive-similarity.featuresExtractor.processor.Processor">Processor</a></b></code>:
+<ul class="hlist">
+<li><code><a title="positive-similarity.featuresExtractor.processor.Processor.execute" href="#positive-similarity.featuresExtractor.processor.Processor.execute">execute</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.Processor.register" href="#positive-similarity.featuresExtractor.processor.Processor.register">register</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="positive-similarity.featuresExtractor" href="index.html">positive-similarity.featuresExtractor</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessor" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessor">AdaptationProcessor</a></code></h4>
+<ul class="">
+<li><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessor.calculate_merged_features_and_reset_dict" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessor.calculate_merged_features_and_reset_dict">calculate_merged_features_and_reset_dict</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessor.execute" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessor.execute">execute</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessor.register" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessor.register">register</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA">AdaptationProcessorPCA</a></code></h4>
+<ul class="">
+<li><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.calculate_merged_features_and_reset_dict" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.calculate_merged_features_and_reset_dict">calculate_merged_features_and_reset_dict</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.execute" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.execute">execute</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.register" href="#positive-similarity.featuresExtractor.processor.AdaptationProcessorPCA.register">register</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="positive-similarity.featuresExtractor.processor.PCAProcessor" href="#positive-similarity.featuresExtractor.processor.PCAProcessor">PCAProcessor</a></code></h4>
+<ul class="">
+<li><code><a title="positive-similarity.featuresExtractor.processor.PCAProcessor.execute" href="#positive-similarity.featuresExtractor.processor.PCAProcessor.execute">execute</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.PCAProcessor.register" href="#positive-similarity.featuresExtractor.processor.PCAProcessor.register">register</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="positive-similarity.featuresExtractor.processor.Processor" href="#positive-similarity.featuresExtractor.processor.Processor">Processor</a></code></h4>
+<ul class="">
+<li><code><a title="positive-similarity.featuresExtractor.processor.Processor.execute" href="#positive-similarity.featuresExtractor.processor.Processor.execute">execute</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.Processor.register" href="#positive-similarity.featuresExtractor.processor.Processor.register">register</a></code></li>
+<li><code><a title="positive-similarity.featuresExtractor.processor.Processor.set_path" href="#positive-similarity.featuresExtractor.processor.Processor.set_path">set_path</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="positive-similarity.featuresExtractor.processor.SaveProcessor" href="#positive-similarity.featuresExtractor.processor.SaveProcessor">SaveProcessor</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
