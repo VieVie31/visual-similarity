@@ -1,5 +1,114 @@
-# Positive-Similarity
+## Learning an adaptation function to assess image visual similarities
 
+<p align="center">
+  <img width="500" alt="Pipeline to learn an adaptation function able to compute visual similarity from image pairs."
+                   src="https://user-images.githubusercontent.com/18449334/120085500-03da3380-c0d9-11eb-8cf8-aaf54d399a66.png">
+</p>
+
+```
+citation
+```
+
+<br>
+
+### Pretrained Model
+
+<table>
+  <tr>
+    <th>epochs</th>
+    <th>Avg top1 accuracy</th>
+    <th>Avg top5 accuracy</th>
+    <th colspan="3">download</th>
+  </tr>
+  <tr>
+    <td>150</td>
+    <td>39.39%</td>
+    <td>N/A</td>
+    <td><a href="#">full checkpoint</a></td>
+    <td><a href="#">train logs</a></td>
+    <td><a href="#">val logs</a></td>
+  </tr>
+</table>
+
+You can download the full checkpoint, which contains the weights of the adaptation module and the state of the optimizer.
+
+<br>
+
+### Clip extracted features
+
+<table>
+  <tr>
+    <th>Concatenated features size</th>
+    <th>Reduced features with PCA size</th>
+    <th colspan="3">download</th>
+  </tr>
+  <tr>
+    <td>5440</td>
+    <td>256</td>
+    <td><a href="#">concatenated features</a></td>
+    <td><a href="#">reduced features</a></td>
+    <td><a href="#">serialized sklearn pca object</a></td>
+  </tr>
+</table>
+
+You can download the extracted features from the clip Resnet50x4 model.
+
+<br>
+
+### Training an adaptation module
+
+When you have the extracted embeddeings in serialized form, you can train an adaptation module of your choice using the following command:
+
+```
+python train.py -d PATH/TO/EMBDS.NPY --model original -s PATH/WHERE/TO/SAVE/TENSORBOARD_METRICS -e NUM_EPOCHS -r NUM_RUNS -t TEMPERATURE --test-split SPLITTING_PERCENTAGE -k TOPK_VALS --gpu
+```
+
+To know more either check the train [doc](docs/train.html) or run:
+```
+python train.py -h
+```
+
+In order to have our results run the following command:
+
+```
+python train.py -d PATH/TO/CLIP_EMBDS.NPY --model original -s PATH/WHERE/TO/SAVE/TENSORBOARD_METRICS -e 150 -r 1 -t 15 --test-split 0.25 -k 1 3 5 --gpu
+```
+
+<br>
+
+### Extracting features 
+
+To extract the embeddings of a dataset, using the models defined in [models.py](featuresExtractor/models.py), you can run the following command:
+
+```
+python extract.py -d PATH/TO/DATASET -s PATH/WHERE/TO/SAVE/THE/EMBEDDEINGS -b BATCH_SIZE --data-aug OR --no-data-aug --processor PROCESSOR
+```
+
+To see all the implemented processors, see the following [documentation](docs/featuresExtractor/processor.html).
+
+In our case, we [augment](featuresExtractor/transforms.py) the images and use the adaptation processor with pca, this can be done by running:
+
+```
+python extract.py -d PATH/TO/DATASET -s PATH/WHERE/TO/SAVE/THE/EMBEDDEINGS -b 2048 --data-aug --processor adapt-pca 256
+```
+
+<br>
+
+## License
+
+add license ?
+
+
+
+
+
+
+
+
+
+
+
+<!--
 Recent self-supervised architecture [BYOL](https://arxiv.org/pdf/2006.07733.pdf) provide a way to learn representation from only positive pairs of transformation of a single image.
 In this project, we would like to investigate the ability of this kind of architecture to learn in the more general _metric learning_ setting from only positive pairs.
 Previous works rely on _triplet networks_ or _siamese networks_.
@@ -27,3 +136,4 @@ This project could be beneficial and open new perspectives for _metric learning_
 - [[8](https://arxiv.org/pdf/2102.06810.pdf)] Yuandong Tian, et al. _"Understanding self-supervised Learning Dynamics without Contrastive Pairs."_ (2021).
 
 
+-->
