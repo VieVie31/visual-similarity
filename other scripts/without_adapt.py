@@ -15,7 +15,7 @@ from torch.utils.tensorboard import SummaryWriter
 runs = 20
 device = 'cpu'
 
-def calc_loss(left, right, temp):
+def calc_loss(left, right, temp, device):
     sim1 = my_utils.sim_matrix(left, right)
     sim2 = sim1.t()
 

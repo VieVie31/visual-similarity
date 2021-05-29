@@ -3,7 +3,6 @@
 
 import torchvision.transforms as transforms
 
-# taken from https://discuss.pytorch.org/t/how-to-preprocess-input-for-pre-trained-networks/683
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
 pre_processing_transforms = transforms.Compose(
@@ -11,5 +10,4 @@ pre_processing_transforms = transforms.Compose(
 )
 
 data_aug_transform = transforms.RandomHorizontalFlip(p=1)
-
 target_aug_transform = lambda label: "augmented_" + label

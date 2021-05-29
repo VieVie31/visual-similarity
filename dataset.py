@@ -2,11 +2,11 @@ import os
 
 import torch
 import numpy as np
-import torchvision.transforms as transforms
-from torch.utils.data import Dataset
+
 from skimage import io
 from pathlib import Path
 from typing import Tuple, Dict
+from torch.utils.data import Dataset
 
 
 class TTLDataset(Dataset):

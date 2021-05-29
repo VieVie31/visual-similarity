@@ -1,35 +1,7 @@
-import os
 import argparse
-from featureExtractor import FeatureExtractor
-from models import models_dict
-from dataset import TTLDataset
-from processor import SaveProcessor, PCAProcessor, AdaptationProcessor
-
-
-class ValidateProcessor(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        processor = values[0].lower()
-
-        if processor not in ("save", "pca", "adapt"):
-            raise ValueError(f"invalid processor {values[0]}")
-
-        if processor == "pca" or processor == "adapt":
-            if len(values) > 2:
-                raise ValueError(
-                    f"Too much arguments ! pca must be followed only by 1 number (out dim)"
-                )
-            elif len(values) < 2:
-                raise ValueError(f"Need out dim for the pca !")
-
-            if processor == "pca":
-                processor = PCAProcessor(namespace.save_to, int(values[1]))
-            else:
-                processor = AdaptationProcessor(namespace.save_to, int(values[1]))
-        else:
-            processor = SaveProcessor(namespace.save_to)
-
-        setattr(namespace, self.dest, processor)
-
+from featuresExtractor import models_dict
+from featuresExtractor import FeatureExtractor
+from featuresExtractor import ValidateProcessor
 
 parser = argparse.ArgumentParser(description="Feature maps extractor")
 
@@ -58,7 +30,7 @@ parser.add_argument(
     nargs="*",
     action=ValidateProcessor,
     default="save",
-    help="Which processor to use, save or pca ?  (default: save)",
+    help="Which processor to use ?  (default: save)",
 )
 
 augment_parser = parser.add_mutually_exclusive_group(required=False)
@@ -79,4 +51,6 @@ if __name__ == "__main__":
     # example:
     # python extract.py -d ..\Desktop\TER\positive-similarity\data\ -s ..\Desktop\saved_features -b 64 -p adapt 256
     # python extract.py -d ../data_original -s ../saved_features -b 512 -p adapt 256 --data-aug
+    
+    # python extract.py -d TTLDataset_PATH -s WHERE_TO_SAVE_CALCULATED_FEATURES -b BATCH_SIZE [--data-aug | --no-data-aug] -p PROCESSOR [with args] 
     main()

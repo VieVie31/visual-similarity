@@ -8,7 +8,6 @@ from pathlib import Path
 from sklearn.decomposition import PCA
 from collections.abc import Iterable
 from tqdm import tqdm
-from joblib import dump
 
 
 class Processor(ABC):
@@ -178,8 +177,8 @@ class PCAProcessor(Processor):
             del self.features_per_layer_dict
             self.features_per_layer_dict = dict()
 
-'''
-class AdaptationProcessor(Processor):
+
+class AdaptationProcessorPCA(Processor):
     """
     This is our processor that will be used in practice. Here is what it does:
         - Extract outputs from several layers
@@ -284,7 +283,7 @@ class AdaptationProcessor(Processor):
                 d = dict(zip(self.names, np.asarray(reduced_features)))
 
             np.save(save_path / str(self.model_name), d)
-            dump(self.PCA, save_path / "pca.joblib")
+            np.save(save_path / "pca.npy", self.PCA)
 
             # crucial line here if we are iterating over multiple models
             del self.merged_features, self.names
@@ -320,24 +319,15 @@ class AdaptationProcessor(Processor):
         del self.features_per_group_dict
         self.features_per_group_dict = dict()
 
-'''
 
 class AdaptationProcessor(Processor):
     """
-    This is our processor that will be used in practice. Here is what it does:
-        - Extract outputs from several layers
-        - Apply AvgPooling to these output to flatten them
-        - Concatenate them
-        - Apply PCA to reduce dimension
-        - Serialize the results
+    Same as AdaptationProcessor but without pca.
+    Used in some envs where pca gets stuck because of conflicted versions of sklearn.
     """
 
-    def __init__(self, save_path: str, out_dim: int):
-        assert int(out_dim) > 0
+    def __init__(self, save_path: str):
         super().__init__(save_path)
-
-        self.PCA = PCA(out_dim)
-        self.out_dim = out_dim
 
         self.avg = nn.AdaptiveAvgPool2d((1, 1))
         self.names = []
@@ -398,12 +388,7 @@ class AdaptationProcessor(Processor):
         self.calculate_merged_features_and_reset_dict()
 
         if len(self.merged_features) > 0:
-            # PCA fitting
-            print("PCA fitting in progress...")
-
-            # moving tensor to cpu before doing PCA fitting (sklearn doesn't support GPU yet)
-            X = torch.stack([x for x in self.merged_features]).cpu().numpy()
-            
+            X = torch.stack([x for x in self.merged_features]).numpy()
 
             print("Saving original features...")
             # serialize and save
@@ -429,34 +414,6 @@ class AdaptationProcessor(Processor):
                 d = dict(zip(self.names, np.asarray(X)))
 
             np.save(save_path / str(self.model_name), d)
-            """
-            print("PCA computation...", X.shape)
-
-            # Fit PCA
-            self.PCA = PCA(self.out_dim).fit(X)
-            print("vcoucou")
-            reduced_features = self.PCA.transform(X)
-            print("blipbloup")
-
-            if len(self.save_path_names) > 1:
-                d = {"left": [], "right": [], "left_name": [], "right_name": []}
-                assert len(self.names) == len(reduced_features)
-
-                for i in range(len(self.names)):
-                    if "left" in self.names[i]:
-                        d["left"].append(reduced_features[i])
-                        d["left_name"].append(self.names[i].split("_")[-1])
-                    else:
-                        d["right"].append(reduced_features[i])
-                        d["right_name"].append(self.names[i].split("_")[-1])
-
-                d["left"], d["right"] = np.asarray(d["left"]), np.asarray(d["right"])
-            else:
-                d = dict(zip(self.names, np.asarray(reduced_features)))
-
-            np.save(save_path / (str(self.model_name) + '_pca'), d)
-            dump(self.PCA, save_path / "pca.joblib")
-            """
             # crucial line here if we are iterating over multiple models
             del self.merged_features, self.names
             self.merged_features = []

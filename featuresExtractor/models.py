@@ -1,9 +1,7 @@
-import my_utils
 import torch
-import torch.nn as nn
 import torchvision.models
-import torchvision.transforms as transforms
 import timm
+from . import utils
 
 from facenet_pytorch import InceptionResnetV1
 
@@ -25,32 +23,32 @@ models_dict = dict()
 
 # CLIP - OPENAI
 
-clip_rn50x4 = lambda *args: my_utils.load_clip_model("RN50x4", *args)
+clip_rn50x4 = lambda *args: utils.load_clip_model("RN50x4", *args)
 models_dict["clip_rn50x4"] = {
     "model": clip_rn50x4,
     "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
-    "transform": my_utils.get_clip_transforms("RN50x4"),
+    "transform": utils.get_clip_transforms("RN50x4"),
 }
 
-clip_rn50 = lambda *args: my_utils.load_clip_model("RN50", *args)
+clip_rn50 = lambda *args: utils.load_clip_model("RN50", *args)
 models_dict["clip_rn50"] = {
     "model": clip_rn50,
     "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
-    "transform": my_utils.get_clip_transforms("RN50"),
+    "transform": utils.get_clip_transforms("RN50"),
 }
 
-clip_rn101 = lambda *args: my_utils.load_clip_model("RN101", *args)
+clip_rn101 = lambda *args: utils.load_clip_model("RN101", *args)
 models_dict["clip_rn101"] = {
     "model": clip_rn101,
     "layers": ["layer1", "layer2", "layer3", "layer4", "attnpool"],
-    "transform": my_utils.get_clip_transforms("RN101"),
+    "transform": utils.get_clip_transforms("RN101"),
 }
 
-clip_vit32_b = lambda *args: my_utils.load_clip_model("ViT-B/32", *args)
+clip_vit32_b = lambda *args: utils.load_clip_model("ViT-B/32", *args)
 models_dict["clip_vit32_b"] = {
     "model": clip_vit32_b,
     "layers": ["ln_post"],
-    "transform": my_utils.get_clip_transforms("ViT-B/32"),
+    "transform": utils.get_clip_transforms("ViT-B/32"),
 }
 
 
@@ -87,98 +85,6 @@ models_dict["resnet152"] = {
     "model": resnet152,
     "layers": ["layer1", "layer2", "layer3", "layer4"],
 }
-
-"""
-# # Big Transfer
-# # pretrained on imagenet21k, finetuned on imagenet1k
-
-models_dict["BiT-M-R50x1"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_50x1_bitm", pretrained=True, *args
-    ).eval(),
-    "layers": [-2, -3],
-}
-
-models_dict["BiT-M-R50x3"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_50x3_bitm", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R101x1"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_101x1_bitm", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R101x3"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_101x3_bitm", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R152x2"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_152x2_bitm", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R152x4"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_152x4_bitm", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-# # Big Transfer trained on imagenet-21k
-
-models_dict["BiT-M-R50x1_in21k"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_50x1_bitm_in21k", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R50x3_in21k"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_50x3_bitm_in21k", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R101x1_in21k"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_101x1_bitm_in21k", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R101x3_in21k"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_101x3_bitm_in21k", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R152x2_in21k"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_152x2_bitm_in21k", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-
-models_dict["BiT-M-R152x4_in21k"] = {
-    "model": lambda *args: timm.create_model(
-        "resnetv2_152x4_bitm_in21k", pretrained=True, *args
-    ).eval(),
-    "layers": [-2],
-}
-"""
-
 
 # ALEXNET
 models_dict["alexnet"] = {
@@ -217,7 +123,49 @@ models_dict["efficientnet_b3"] = {
     "layers": [-2],
 }
 
-
+# Big Transfert
+models_dict["BiT-M-R50x1_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                    "resnetv2_50x1_bitm_in21k", pretrained=True, *args
+                        ).eval(),
+                            "layers": [6, 44, 93, -6],
+                            }
+ 
+ 
+models_dict["BiT-M-R50x3_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_50x3_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 93, -6],
+                }
+ 
+models_dict["BiT-M-R101x1_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_101x1_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 93, -6],
+                }
+ 
+models_dict["BiT-M-R101x3_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_101x3_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 93, -6],
+                }
+ 
+models_dict["BiT-M-R152x2_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                    "resnetv2_152x2_bitm_in21k", pretrained=True, *args
+                        ).eval(),
+                "layers": [6, 44, 137, -6], # 93+11*4
+                }
+ 
+models_dict["BiT-M-R152x4_in21k"] = {
+            "model": lambda *args: timm.create_model(
+                        "resnetv2_152x4_bitm_in21k", pretrained=True, *args
+                            ).eval(),
+                "layers": [6, 44, 137, -6],
+                }
 
 
 # FACENET
@@ -366,53 +314,3 @@ models_dict["dino_vitb16"] = {
     ).eval(),
     "layers": ["head"],
 }
-
-
-
-
-# Big Transfert
-models_dict["BiT-M-R50x1_in21k"] = {
-            "model": lambda *args: timm.create_model(
-                    "resnetv2_50x1_bitm_in21k", pretrained=True, *args
-                        ).eval(),
-                            "layers": [6, 44, 93, -6],
-                            }
- 
- 
-models_dict["BiT-M-R50x3_in21k"] = {
-            "model": lambda *args: timm.create_model(
-                        "resnetv2_50x3_bitm_in21k", pretrained=True, *args
-                            ).eval(),
-                "layers": [6, 44, 93, -6],
-                }
- 
-models_dict["BiT-M-R101x1_in21k"] = {
-            "model": lambda *args: timm.create_model(
-                        "resnetv2_101x1_bitm_in21k", pretrained=True, *args
-                            ).eval(),
-                "layers": [6, 44, 93, -6],
-                }
- 
-models_dict["BiT-M-R101x3_in21k"] = {
-            "model": lambda *args: timm.create_model(
-                        "resnetv2_101x3_bitm_in21k", pretrained=True, *args
-                            ).eval(),
-                "layers": [6, 44, 93, -6],
-                }
- 
-models_dict["BiT-M-R152x2_in21k"] = {
-            "model": lambda *args: timm.create_model(
-                    "resnetv2_152x2_bitm_in21k", pretrained=True, *args
-                        ).eval(),
-                "layers": [6, 44, 137, -6], # 93+11*4
-                }
- 
-models_dict["BiT-M-R152x4_in21k"] = {
-            "model": lambda *args: timm.create_model(
-                        "resnetv2_152x4_bitm_in21k", pretrained=True, *args
-                            ).eval(),
-                "layers": [6, 44, 137, -6],
-                }
-
-
-

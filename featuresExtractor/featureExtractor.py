@@ -1,24 +1,21 @@
 import os
-import pickle
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 
-from torch.utils.data import Dataset, DataLoader, ConcatDataset
+from torch.utils.data import DataLoader, ConcatDataset
 from torch.utils.hooks import RemovableHandle
-from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Dict
 from types import FunctionType
 from collections.abc import Iterable
 from tqdm import tqdm
 
 from dataset import TTLDataset, SimpleDataset
-from processor import Processor, AdaptationProcessor
-from my_utils import get_layer_index
+from .processor import Processor, AdaptationProcessor
+from .utils import get_layer_index
 
-import transforms as default_transforms
+from . import transforms as default_transforms
 
 
 class FeatureExtractor:
@@ -122,6 +119,8 @@ class FeatureExtractor:
             dataset = self.__construct_dataset(path, model_name, add_augmentation)
             loader = DataLoader(dataset, batch_size=batch_size)
 
+            
+
             # check before extracting features
             if isinstance(self.processor, AdaptationProcessor):
                 if len(dataset) % loader.batch_size == 1:
@@ -140,6 +139,8 @@ class FeatureExtractor:
             self.__register_hooks(model, model_name)
 
             is_ttl = dataset.__class__.__name__ == "TTLDataset"
+            
+            print("[INFO] Dataset is loaded.", flush=True)
 
             if is_ttl:
                 with tqdm(total=len(loader), desc="Batch loop") as progress_bar:
@@ -353,7 +354,7 @@ class FeatureExtractor:
             """
             Hook function, this is where we are placing our processor to handle the extracted features
             """
-            # Processing is done on CPU, so let's move this tensor to cpu to save GPU memory
+            # Processing is generally done on CPU, so let's move this tensor to cpu to save GPU memory
             processor.register(
                 model_name, layer_name, output.detach().cpu(), self.corresponding_labels
             )
@@ -371,7 +372,7 @@ class FeatureExtractor:
                 os.walk(self.original_save_path / self.processor.name / str(model_name))
             )
 
-            if len(files) >= 2:
+            if len(files) > 0:
                 return True
         except StopIteration:
             return False
