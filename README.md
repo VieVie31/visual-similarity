@@ -5,11 +5,48 @@
                    src="https://user-images.githubusercontent.com/18449334/120085500-03da3380-c0d9-11eb-8cf8-aaf54d399a66.png">
 </p>
 
+Please cite for the main method :
+
 ```
-citation
+@inproceedings{risser2021learning,
+  title={Learning an adaptation function to assess image visual similarities},
+  author={Risser-Maroix, Olivier and Kurtz, Camille and Lomenie, Nicolas},
+  booktitle={2021 IEEE International Conference on Image Processing (ICIP)},
+  pages={2498--2502},
+  year={2021},
+  organization={IEEE}
+}
+```
+
+
+The extended version contains better scores by benchmarking 37 pretrained features extractors :
+
+```
+@article{risser2022learning,
+  title={Learning an Adaptation Function to Assess Image Visual Similarities},
+  author={Risser-Maroix, Olivier and Marzouki, Amine and Djeghim, Hala and Kurtz, Camille and Lomenie, Nicolas},
+  journal={arXiv preprint arXiv:2206.01417},
+  year={2022}
+}
 ```
 
 <br>
+
+
+### Quick training 
+
+Open the `example.ipynb` notebook for fast explaination…
+
+
+
+### Want to use the same TLL_obj split ?
+
+`TLL_obj.csv` contains the name of the images composing the TLL_obj presented in our paper…
+
+To compare score with use you should use the exact same split for fairness.
+
+
+🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
 
 ### Pretrained Model
 
@@ -94,46 +131,6 @@ python extract.py -d PATH/TO/DATASET -s PATH/WHERE/TO/SAVE/THE/EMBEDDEINGS -b 20
 
 <br>
 
-## License
-
-add license ?
 
 
 
-
-
-
-
-
-
-
-
-<!--
-Recent self-supervised architecture [BYOL](https://arxiv.org/pdf/2006.07733.pdf) provide a way to learn representation from only positive pairs of transformation of a single image.
-In this project, we would like to investigate the ability of this kind of architecture to learn in the more general _metric learning_ setting from only positive pairs.
-Previous works rely on _triplet networks_ or _siamese networks_.
-Those architectures need complex mining procedures to create negative triplet for efficient learning.
-In some case, the negative samples could not even be doable (eg. because of the compositionality of attributes).
-This project could be beneficial and open new perspectives for _metric learning_ in those complicated cases.
-
-## Questions, Ideas & Research Plan
-
-- [ ] Read paper [7, 8] ([SimSiam short video](https://www.youtube.com/watch?v=k-PcMBYQsOY), may help to understand)
-- [ ] BYOL like architecture re-implementation (on TLL dataset, on VISAGOLY ?)
-- [ ] Do we necessarily need two networks (_online_ and _target_ networks surch as in MoCo or BYOL) to learn from only positive pairs ? Can we only rely on a single network and use the [_batchnorm_ trick](https://generallyintelligent.ai/understanding-self-supervised-contrastive-learning.html) to prevent collapse ?
-- [ ] other ? (add other ideas if any)
-
-
-## References
-
-- [[1](https://arxiv.org/pdf/2006.07733.pdf)] Grill, Jean-Bastien et al. _"Bootstrap Your Own Latent - A New Approach to Self-Supervised Learning."_ Advances in Neural Information Processing Systems. Curran Associates, Inc..
-- [[2](https://openreview.net/pdf?id=c5QbJ1zob73)] Yuandong Tian, et al. _"Understanding Self-supervised Learning with Dual Deep Networks."_ (2020).
-- [[3](https://arxiv.org/pdf/2010.10241.pdf)] Richemond, Pierre H. et al. _“BYOL works even without batch statistics.”_ ArXiv abs/2010.10241 (2020): n. pag.
-- [[4](https://papers.nips.cc/paper/2015/file/45f31d16b1058d586fc3be7207b58053-Paper.pdf)] Sadeghi, Fereshteh et al. _"Visalogy: Answering Visual Analogy Questions."_ Advances in Neural Information Processing Systems. Curran Associates, Inc., 
-- [[5](https://openaccess.thecvf.com/content_cvpr_2018_workshops/papers/w39/Rosenfeld_Totally_Looks_Like_CVPR_2018_paper.pdf)] Rosenfeld, Amir et al. _"Totally Looks Like - How Humans Compare, Compared to Machines."_ Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) Workshops.
-- [[6](https://www.pnas.org/content/pnas/118/3/e2014196118.full.pdf)] Chengxu Zhuang, et al. _"Unsupervised neural network models of the ventral visual stream"_. Proceedings of the National Academy of Sciences 118. 3(2021): e2014196118.
-- [[7](https://arxiv.org/pdf/2011.10566.pdf)] Xinlei Chen, et al. _"Exploring Simple Siamese Representation Learning."_ (2020).
-- [[8](https://arxiv.org/pdf/2102.06810.pdf)] Yuandong Tian, et al. _"Understanding self-supervised Learning Dynamics without Contrastive Pairs."_ (2021).
-
-
--->
