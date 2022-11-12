@@ -1,8 +1,7 @@
 ## Learning an adaptation function to assess image visual similarities
 
 <p align="center">
-  <img width="500" alt="Pipeline to learn an adaptation function able to compute visual similarity from image pairs."
-                   src="https://user-images.githubusercontent.com/18449334/120085500-03da3380-c0d9-11eb-8cf8-aaf54d399a66.png">
+  ![Pipeline to learn an adaptation function able to compute visual similarity from image pairs.](./visual_adaptation_pipeline.png)
 </p>
 
 Please cite for the main method :
@@ -46,51 +45,6 @@ Open the `example.ipynb` notebook for fast explaination…
 To compare score with use you should use the exact same split for fairness.
 
 
-🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧
-
-### Pretrained Model
-
-<table>
-  <tr>
-    <th>epochs</th>
-    <th>Avg top1 accuracy</th>
-    <th>Avg top5 accuracy</th>
-    <th colspan="3">download</th>
-  </tr>
-  <tr>
-    <td>150</td>
-    <td>39.39%</td>
-    <td>N/A</td>
-    <td><a href="#">full checkpoint</a></td>
-    <td><a href="#">train logs</a></td>
-    <td><a href="#">val logs</a></td>
-  </tr>
-</table>
-
-You can download the full checkpoint, which contains the weights of the adaptation module and the state of the optimizer.
-
-<br>
-
-### Clip extracted features
-
-<table>
-  <tr>
-    <th>Concatenated features size</th>
-    <th>Reduced features with PCA size</th>
-    <th colspan="3">download</th>
-  </tr>
-  <tr>
-    <td>5440</td>
-    <td>256</td>
-    <td><a href="#">concatenated features</a></td>
-    <td><a href="#">reduced features</a></td>
-    <td><a href="#">serialized sklearn pca object</a></td>
-  </tr>
-</table>
-
-You can download the extracted features from the clip Resnet50x4 model.
-
-<br>
 
 ### Training an adaptation module
 
