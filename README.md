@@ -1,7 +1,7 @@
 ## Learning an adaptation function to assess image visual similarities
 
 <p align="center">
-  ![Pipeline to learn an adaptation function able to compute visual similarity from image pairs.](./visual_adaptation_pipeline.png)
+  <img width=500 alt="Pipeline to learn an adaptation function able to compute visual similarity from image pairs" src="https://github.com/VieVie31/visual-similarity/blob/main/visual_adaptation_pipeline.png"/>
 </p>
 
 Please cite for the main method :
